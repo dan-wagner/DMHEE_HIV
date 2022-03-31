@@ -10,25 +10,7 @@
 #    severe state. 
 #  - Cycle Length is 1 year. 
 
-# Define Transition Matrix (Q) #################################################
-## j = Comparator, must be 'Mono' or 'Comb'. 
-## StateCounts = A matrix of state transitions. 
-## RR = Relative risk of severe disease from combination therapy.  
-define_tmat <- function(StateCounts, RR = 0.509) {
-  
-  # Calculate Probability of State Transitions using Count
-  Q <- sapply(X = list(Mono = StateCounts, Comb = StateCounts), 
-              FUN = prop.table, 
-              margin = 1, 
-              simplify = "array")
-  Q["D",,] <- c(rep(0,3),1)
-  
-  ## Adjust transition probabilities for Comb using RR
-  Q[,,"Comb"] <- Q[,,"Comb"] * RR
-  diag(Q[,,"Comb"]) <- 1 - (rowSums(x = Q[,,"Comb"]) - diag(Q[,,"Comb"]))
-  
-  return(Q)
-}
+
 
 # TRACK COHORT #################################################################
 ## j: Arm, will accept "Mono", or "Comb". 
@@ -97,10 +79,8 @@ runModel <- function(j,
                      nCycles = 20, 
                      oDR = 0, 
                      cDR = 0.06){
-  ## 1) Define Transition Matrix -----------------------------------------------
-  Q <- define_tmat(StateCounts = ParamList$StateCount, RR = ParamList$RR)
   ## 2) Track Cohort -----------------------------------------------------------
-  cohort <- track_cohort(j = j, Q = Q, nCycles = nCycles)
+  cohort <- track_cohort(j = j, Q = ParamList$Q, nCycles = nCycles)
   ## 3) Calculate LYs ----------------------------------------------------------
   LYs <- rowSums(x = cohort[,c("A", "B", "C")], dims = 1)
   ## 4) Estimate Costs ---------------------------------------------------------

@@ -43,6 +43,25 @@ getParams <- function() {
   
 }
 
+# Define Transition Matrix (Q) #################################################
+## StateCounts = A matrix of state transitions. 
+## RR = Relative risk of severe disease from combination therapy.  
+define_tmat <- function(StateCounts, RR = 0.509) {
+  
+  # Calculate Probability of State Transitions using Count
+  Q <- sapply(X = list(Mono = StateCounts, Comb = StateCounts), 
+              FUN = prop.table, 
+              margin = 1, 
+              simplify = "array")
+  Q["D",,] <- c(rep(0,3),1)
+  
+  ## Adjust transition probabilities for Comb using RR
+  Q[,,"Comb"] <- Q[,,"Comb"] * RR
+  diag(Q[,,"Comb"]) <- 1 - (rowSums(x = Q[,,"Comb"]) - diag(Q[,,"Comb"]))
+  
+  return(Q)
+}
+
 # Draw Parameters deterministically or probabilsitically =======================
 MoM_Costs <- function(Mean, SE){
   Alpha <- Mean^2/SE^2
@@ -96,6 +115,11 @@ DrawParams <- function(ParamList, prob = 0, n) {
     ParamList$AnnualCost <- t(ParamList$AnnualCost)
   }
   
+  # State Transitions ----------------------------------------------------------
+  ParamList$Q <- define_tmat(StateCounts = ParamList$StateCount, 
+                             RR = ParamList$RR)
+  
+  ParamList <- ParamList[c("RR", "Q", "AnnualCost", "RxPrices")]
   
   
   return(ParamList)
