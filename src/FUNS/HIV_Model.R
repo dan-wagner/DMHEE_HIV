@@ -93,15 +93,12 @@ est_costs <- function(j, trace, RxPrice, AnnualCosts) {
 ##    iii) Estimated Costs. 
 
 runModel <- function(j, 
-                     StateCounts, 
-                     RR = 0.509, 
-                     RxPrice, 
-                     AnnualCosts, 
-                     nCycles, 
+                     ParamList, 
+                     nCycles = 20, 
                      oDR = 0, 
                      cDR = 0.06){
   ## 1) Define Transition Matrix -----------------------------------------------
-  Q <- define_tmat(StateCounts = StateCounts, RR = 0.509)
+  Q <- define_tmat(StateCounts = ParamList$StateCount, RR = ParamList$RR)
   ## 2) Track Cohort -----------------------------------------------------------
   cohort <- track_cohort(j = j, Q = Q, nCycles = nCycles)
   ## 3) Calculate LYs ----------------------------------------------------------
@@ -109,8 +106,8 @@ runModel <- function(j,
   ## 4) Estimate Costs ---------------------------------------------------------
   Costs <- est_costs(j = j, 
                      trace = cohort, 
-                     RxPrice = RxPrice, 
-                     AnnualCosts = AnnualCosts)
+                     RxPrice = ParamList$RxPrices, 
+                     AnnualCosts = ParamList$AnnualCost)
   Costs <- rowSums(x = Costs, dims = 1) # Sum Costs for each cycle. 
   
   ## 5) Discount LYs and Costs -------------------------------------------------
