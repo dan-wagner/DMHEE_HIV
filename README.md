@@ -22,13 +22,15 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
 -   Use `DrawParams()` to generate the inputs required to execute `runModel()`. The code is designed such that this function must be called whether one wants to evaluate the model with deterministic or probabilistic inputs.
 
-### :x:Perform Simulations
+### :warning:Perform Simulations
 
-TODO: Base Case Simulation
+-   :white_check_mark:Determinsitic Simulation
 
-TODO: Probabilistic Simulation.
+    -   Save to `data/data-gen/Simulation-Output` directory as `HIV_Deter.rds`.
 
-Save output in `data-gen` directory.
+-   :x:Monte Carlo Simulation (1,000 iterations)
+
+    -   Save to `data/data-gen/Simulation-Output` directory as `HIV-Sim_MC_1000.rds`
 
 ### :x:Analyze Simulation Results
 
