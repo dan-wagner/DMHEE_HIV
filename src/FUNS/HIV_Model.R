@@ -60,3 +60,26 @@ track_cohort <- function(j, Q, nCycles = 20){
   
   return(trace)
 }
+
+# Run Model ####################################################################
+## - Model can be broken down into three components: 
+##    i) Track Cohort through Markov Structure. 
+##    ii) Estimate Life Years
+##    iii) Estimated Costs. 
+
+runModel <- function(j, StateCounts, RR = 0.509, nCycles, oDR = 0){
+  ## 1) Define Transition Matrix -----------------------------------------------
+  Q <- define_tmat(StateCounts = StateCounts, RR = 0.509)
+  ## 2) Track Cohort -----------------------------------------------------------
+  cohort <- track_cohort(j = j, Q = Q, nCycles = nCycles)
+  ## 3) Calculate LYs ----------------------------------------------------------
+  LYs <- rowSums(x = cohort[,c("A", "B", "C")], dims = 1)
+  
+  ## 4) Discount LYs -----------------------------------------------------------
+  LYs <- LYs/((1+oDR)^(1:nCycles))
+  
+  ## Return Costs and Effects
+  Result <- sum(LYs)
+  
+  return(Result)
+}
