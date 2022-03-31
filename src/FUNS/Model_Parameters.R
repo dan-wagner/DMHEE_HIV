@@ -24,7 +24,9 @@ getParams <- function() {
     
     HIV_Params <- 
       list(StateCount = StateCounts.mono, 
-           RR = 0.509, 
+           RR = c(Mean = 0.509, 
+                  CI_lower = 0.365, 
+                  CI_upper = 0.710), 
            AnnualCost = AnnCosts, 
            RxPrices = c(AZT = 2278, LAM = 2087))
     
@@ -39,4 +41,29 @@ getParams <- function() {
     usethis::ui_info("Load parameters from: {usethis::ui_path(Param.Path)}")
   }
   
+}
+
+# Draw Parameters deterministically or probabilsitically =======================
+
+
+
+DrawParams <- function(ParamList, prob = 0, n) {
+  # Relative Risk of Disease Progression ---------------------------------------
+  ## Distribution: Log Normal
+  if (prob == 0) {
+    ParamList$RR <- ParamList$RR[["Mean"]]
+  } 
+  if (prob == 1) {
+    RRsd <- (log(ParamList$RR[["CI_upper"]]) - 
+               log(ParamList$RR[["CI_lower"]]))/(1.96*2)
+    
+    ParamList$RR <- 
+      rlnorm(n = n, 
+             meanlog = log(ParamList$RR[["Mean"]]), 
+             sdlog = RRsd)
+  }
+  
+  
+  
+  return(ParamList)
 }
