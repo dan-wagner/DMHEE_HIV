@@ -55,15 +55,20 @@ est_costs <- function(j, trace, RxPrice, AnnualCosts) {
   M.Costs <- colSums(x = AnnualCosts, dims = 1)
   # Calculate Total Cost for each State and Cycle ------------------------------
   ## NOTE: AZT is given in every cycle for both arms. 
-  Costs <- trace[,-4]
-  for (i in seq_along(1:dim(trace)[1])) {
-    Costs[i,] <- Costs[i,] * (M.Costs + RxPrice[["AZT"]])
+  Cycle.Cost <- (M.Costs + RxPrice[["AZT"]])
+  Costs <- matrix(data = Cycle.Cost, 
+                    nrow = nrow(trace), 
+                    ncol = length(M.Costs), 
+                    byrow = TRUE, 
+                    dimnames = list(Cycle = NULL, 
+                                    State = names(M.Costs)))
+  if (j == "Comb") {
+    # LAM given in the first two cycles only
+    Costs[c(1,2),] <- Costs[c(1,2),] + RxPrice[["LAM"]]
   }
   
-  if (j == "Comb") {
-    # LAM given in the first two cycles only. 
-    Costs[c(1,2), ] <- Costs[c(1,2),] + RxPrice[["LAM"]]
-  }
+  # Take Product of "Alive" states and Annual Costs
+  Costs <- trace[,c("A", "B", "C")] * Costs
   
   return(Costs)
 }
