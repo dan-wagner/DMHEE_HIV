@@ -44,7 +44,15 @@ getParams <- function() {
 }
 
 # Draw Parameters deterministically or probabilsitically =======================
-
+MoM_Costs <- function(Mean, SE){
+  Alpha <- Mean^2/SE^2
+  Beta <- SE^2/Mean
+  
+  Result <- list(Alpha = Alpha, 
+                 Beta = Beta)
+  
+  return(Result)
+}
 
 
 DrawParams <- function(ParamList, prob = 0, n) {
@@ -61,6 +69,31 @@ DrawParams <- function(ParamList, prob = 0, n) {
       rlnorm(n = n, 
              meanlog = log(ParamList$RR[["Mean"]]), 
              sdlog = RRsd)
+  }
+  
+  # Annual Cost ----------------------------------------------------------------
+  ## Distribution: Gamma
+  ## These values are mean costs. The original article did not include 
+  ## information about the variance of the costs. Therefore, it is assumed that 
+  ## SE of annual costs is equal to the mean. 
+  
+  if (prob == 1) {
+    ABcosts <- MoM_Costs(Mean = ParamList$AnnualCost, 
+                         SE = ParamList$AnnualCost)
+    
+    ParamList$AnnualCost <- 
+      sapply(X = setNames(rownames(ParamList$AnnualCost), 
+                          rownames(ParamList$AnnualCost)), 
+             FUN = \(x){
+               mapply(rgamma, 
+                      shape = ABcosts$Alpha[x,], 
+                      scale = ABcosts$Beta[x,], 
+                      MoreArgs = list(n = 1)
+               )
+             }, 
+             simplify = "array")
+    
+    ParamList$AnnualCost <- t(ParamList$AnnualCost)
   }
   
   
