@@ -28,9 +28,9 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
     -   Save to `data/data-gen/Simulation-Output` directory as `HIV_Deter.rds`.
 
--   :x:Monte Carlo Simulation (1,000 iterations)
+-   :white_check_mark:Monte Carlo Simulation (5,000 iterations)
 
-    -   Save to `data/data-gen/Simulation-Output` directory as `HIV-Sim_MC_1000.rds`
+    -   Save to `data/data-gen/Simulation-Output` directory as `HIV_MC-Sim_5000.rds`
 
 ### :x:Analyze Simulation Results
 
@@ -51,3 +51,5 @@ The inputs to `runModel()` must be generated using a separate call stack:
 ## Project Admin
 
 -   Write RunAll script for distinct scenarios.
+
+    -   Start with a windows batch file?
