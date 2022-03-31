@@ -70,7 +70,7 @@ track_cohort <- function(j, Q, nCycles = 20){
 est_costs <- function(j, trace, RxPrice, AnnualCosts) {
   j <- match.arg(arg = j, choices = c("Mono", "Comb"))
   # Calculate Annual Costs for each Markov State -------------------------------
-  M.Costs <- colSums(x = AnnCosts, dims = 1)
+  M.Costs <- colSums(x = AnnualCosts, dims = 1)
   # Calculate Total Cost for each State and Cycle ------------------------------
   ## NOTE: AZT is given in every cycle for both arms. 
   Costs <- trace[,-4]
