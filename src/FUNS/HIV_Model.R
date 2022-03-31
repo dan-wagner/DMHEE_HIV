@@ -61,25 +61,66 @@ track_cohort <- function(j, Q, nCycles = 20){
   return(trace)
 }
 
+# Estimate Costs ###############################################################
+# j = Model Arm | Mono or Comb. 
+# trace = Markov Trace. 
+# RxPrice = Treatment prices for AZT and LAM. 
+# AnnualCosts = Health State Costs
+
+est_costs <- function(j, trace, RxPrice, AnnualCosts) {
+  j <- match.arg(arg = j, choices = c("Mono", "Comb"))
+  # Calculate Annual Costs for each Markov State -------------------------------
+  M.Costs <- colSums(x = AnnCosts, dims = 1)
+  # Calculate Total Cost for each State and Cycle ------------------------------
+  ## NOTE: AZT is given in every cycle for both arms. 
+  Costs <- trace[,-4]
+  for (i in seq_along(1:dim(trace)[1])) {
+    Costs[i,] <- Costs[i,] * (M.Costs + RxPrice[["AZT"]])
+  }
+  
+  if (j == "Comb") {
+    # LAM given in the first two cycles only. 
+    Costs[c(1,2), ] <- Costs[c(1,2),] + RxPrice[["LAM"]]
+  }
+  
+  return(Costs)
+}
+
 # Run Model ####################################################################
 ## - Model can be broken down into three components: 
 ##    i) Track Cohort through Markov Structure. 
 ##    ii) Estimate Life Years
 ##    iii) Estimated Costs. 
 
-runModel <- function(j, StateCounts, RR = 0.509, nCycles, oDR = 0){
+runModel <- function(j, 
+                     StateCounts, 
+                     RR = 0.509, 
+                     RxPrice, 
+                     AnnualCosts, 
+                     nCycles, 
+                     oDR = 0, 
+                     cDR = 0.06){
   ## 1) Define Transition Matrix -----------------------------------------------
   Q <- define_tmat(StateCounts = StateCounts, RR = 0.509)
   ## 2) Track Cohort -----------------------------------------------------------
   cohort <- track_cohort(j = j, Q = Q, nCycles = nCycles)
   ## 3) Calculate LYs ----------------------------------------------------------
   LYs <- rowSums(x = cohort[,c("A", "B", "C")], dims = 1)
+  ## 4) Estimate Costs ---------------------------------------------------------
+  Costs <- est_costs(j = j, 
+                     trace = cohort, 
+                     RxPrice = RxPrice, 
+                     AnnualCosts = AnnualCosts)
+  Costs <- rowSums(x = Costs, dims = 1) # Sum Costs for each cycle. 
   
-  ## 4) Discount LYs -----------------------------------------------------------
+  ## 5) Discount LYs and Costs -------------------------------------------------
   LYs <- LYs/((1+oDR)^(1:nCycles))
+  Costs <- Costs/((1+cDR)^(1:nCycles))
   
-  ## Return Costs and Effects
-  Result <- sum(LYs)
+  ## 6) Combine Costs and Effects ----------------------------------------------
+  Result <- cbind(Costs, LYs)
+  ## 7) Sum Totals -------------------------------------------------------------
+  Result <- colSums(x = Result, dims = 1)
   
   return(Result)
 }
