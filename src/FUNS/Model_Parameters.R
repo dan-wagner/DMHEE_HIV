@@ -46,16 +46,34 @@ getParams <- function() {
 # Define Transition Matrix (Q) #################################################
 ## StateCounts = A matrix of state transitions. 
 ## RR = Relative risk of severe disease from combination therapy.  
-define_tmat <- function(StateCounts, RR = 0.509) {
+define_tmat <- function(StateCounts, RR = 0.509, prob = 0) {
   
-  # Calculate Probability of State Transitions using Count
-  Q <- sapply(X = list(Mono = StateCounts, Comb = StateCounts), 
-              FUN = prop.table, 
-              margin = 1, 
-              simplify = "array")
-  Q["D",,] <- c(rep(0,3),1)
+  # Calculate Probability of State Transitions using Mono Counts
+  Q <- prop.table(x = StateCounts, margin = 1)
+  Q["D", ] <- c(rep(0, 3),1)
   
-  ## Adjust transition probabilities for Comb using RR
+  # Apply Random Draws if Required 
+  if (prob == 1) {
+    # AIDS ("C") to Death ("D")
+    ## Distribution: Beta
+    Q["C", "D"] <- rbeta(n = 1, shape1 = Q["C", "D"], shape2 = Q["C", "C"])
+    Q["C", "C"] <- 1 - Q["C", "C"]
+    
+    # Remaining Polytonomous Transitions
+    ## Distribution: Dirichlet
+    Q["A", ] <- MCMCpack::rdirichlet(n = 1, alpha = Q["A",])
+    Q["B", ] <- MCMCpack::rdirichlet(n = 1, alpha = Q["B",])
+  }
+  
+  # Add Dimension for each comparator
+  Q <- array(data = Q, 
+             dim = c(nrow(Q), ncol(Q), length(c("Mono", "Comb"))), 
+             dimnames = list(Start = rownames(Q), 
+                             End = colnames(Q), 
+                             j = c("Mono", "Comb")))
+  
+  
+  # Adjust transition probabilities for Comb using RR
   Q[,,"Comb"] <- Q[,,"Comb"] * RR
   diag(Q[,,"Comb"]) <- 1 - (rowSums(x = Q[,,"Comb"]) - diag(Q[,,"Comb"]))
   
@@ -90,6 +108,11 @@ DrawParams <- function(ParamList, prob = 0, n) {
              sdlog = RRsd)
   }
   
+  # State Transitions ----------------------------------------------------------
+  ParamList$Q <- define_tmat(StateCounts = ParamList$StateCount, 
+                             RR = ParamList$RR, 
+                             prob = prob)
+  
   # Annual Cost ----------------------------------------------------------------
   ## Distribution: Gamma
   ## These values are mean costs. The original article did not include 
@@ -114,10 +137,7 @@ DrawParams <- function(ParamList, prob = 0, n) {
     
     ParamList$AnnualCost <- t(ParamList$AnnualCost)
   }
-  
-  # State Transitions ----------------------------------------------------------
-  ParamList$Q <- define_tmat(StateCounts = ParamList$StateCount, 
-                             RR = ParamList$RR)
+
   
   ParamList <- ParamList[c("RR", "Q", "AnnualCost", "RxPrices")]
   
