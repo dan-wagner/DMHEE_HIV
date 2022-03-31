@@ -92,7 +92,7 @@ MoM_Costs <- function(Mean, SE){
 }
 
 
-DrawParams <- function(ParamList, prob = 0, n) {
+DrawParams <- function(ParamList, prob = 0) {
   # Relative Risk of Disease Progression ---------------------------------------
   ## Distribution: Log Normal
   if (prob == 0) {
@@ -103,7 +103,7 @@ DrawParams <- function(ParamList, prob = 0, n) {
                log(ParamList$RR[["CI_lower"]]))/(1.96*2)
     
     ParamList$RR <- 
-      rlnorm(n = n, 
+      rlnorm(n = 1, 
              meanlog = log(ParamList$RR[["Mean"]]), 
              sdlog = RRsd)
   }
@@ -139,7 +139,7 @@ DrawParams <- function(ParamList, prob = 0, n) {
   }
 
   
-  ParamList <- ParamList[c("RR", "Q", "AnnualCost", "RxPrices")]
+  ParamList <- ParamList[c("Q", "AnnualCost", "RxPrices")]
   
   
   return(ParamList)
