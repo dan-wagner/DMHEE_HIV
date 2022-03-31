@@ -17,7 +17,7 @@
 define_tmat <- function(StateCounts, RR = 0.509) {
   
   # Calculate Probability of State Transitions using Count
-  Q <- sapply(X = list(Mono = StateCounts.mono, Comb = StateCounts.mono), 
+  Q <- sapply(X = list(Mono = StateCounts, Comb = StateCounts), 
               FUN = prop.table, 
               margin = 1, 
               simplify = "array")
