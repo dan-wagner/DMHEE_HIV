@@ -30,14 +30,13 @@ For the purpose of this exercise, treatment effects are measured in terms of Lif
 
 The HIV model can be evaluated by changing the parameter inputs to `runModel()`. This function is designed to capture three distinct components within a single module. Each time this function is called, other function calls are made to:
 
-- [x] Test to-do 1. 
-- [ ] Test to-do 2. 
-
--   track the cohort through the markov structure (`track_cohort()`)
-
--   Calculate Life Years in that arm of the model. This did not require it's own function, as it depends on a single function call to sum the rows across the "alive" states.
-
--   Estimate costs in each cycle using `est_costs()`.
+- [x] track the cohort through the markov structure over a certain number of 
+cycles. (see `track_cohort()`). 
+- [x] calculate life years for the specified model comparator. This did not 
+require it's own function, as the procedure to calculate this value only 
+required a single function call to sum the rows across the "alive" (A,B,C) 
+states.
+- [x] Esitmate costs in each cycle using `est_costs()`. 
 
 The function will then return a vector with the estimated costs and QALYs according to the inputs.
 
@@ -75,6 +74,5 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
 ## Project Admin
 
--   Write RunAll script for distinct scenarios.
-
-    -   Start with a windows batch file?
+- [ ] write a "RunAll" script for distinct scenarios.
+  - Start with a windows batch file? 
