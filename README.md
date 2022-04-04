@@ -30,7 +30,8 @@ For the purpose of this exercise, treatment effects are measured in terms of Lif
 
 The HIV model can be evaluated by changing the parameter inputs to `runModel()`. This function is designed to capture three distinct components within a single module. Each time this function is called, other function calls are made to:
 
--   [] Task list item 1.
+- [x] Test to-do 1. 
+- [ ] Test to-do 2. 
 
 -   track the cohort through the markov structure (`track_cohort()`)
 
