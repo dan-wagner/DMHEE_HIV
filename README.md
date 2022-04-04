@@ -1,6 +1,9 @@
 # DMHEE_HIV
 
-The goal of this repo is to develop and execute the HIV model from DMHEE. Instructions from textbook are organized around spreadsheet development. Different approach and sequence needed when using a programming language like R.
+The goal of this repo is to develop and execute the HIV model from DMHEE. This 
+exercise was developed in response to the fact that the textbook instructions 
+are designed and organized for a spreadsheet environment. A different approach 
+is required when using a programming language like R. 
 
 ## Model Summary
 
@@ -8,7 +11,7 @@ The HIV model was originally developed for a cost-effectiveness analysis of zido
 
 A summary of the model structure is presented in the figure below.
 
-![Structure of HIV Cohort Model](docs/Diagrams/HIV-Model.png)]
+![Structure of HIV Cohort Model](docs/Diagrams/HIV-Model.png)
 
 The diagram depicts a model which characterizes the prognosis of an HIV-positive patient in terms of four health states. Importantly, the model assumes that a patient cannot move to a less severe disease state. While this assumption may not be true today, this exercise is strictly meant as a teaching tool to illustrate the underlying methods.
 
@@ -30,13 +33,9 @@ For the purpose of this exercise, treatment effects are measured in terms of Lif
 
 The HIV model can be evaluated by changing the parameter inputs to `runModel()`. This function is designed to capture three distinct components within a single module. Each time this function is called, other function calls are made to:
 
-- [x] track the cohort through the markov structure over a certain number of 
-cycles. (see `track_cohort()`). 
-- [x] calculate life years for the specified model comparator. This did not 
-require it's own function, as the procedure to calculate this value only 
-required a single function call to sum the rows across the "alive" (A,B,C) 
-states.
-- [x] Esitmate costs in each cycle using `est_costs()`. 
+-   [x] track the cohort through the markov structure over a certain number of cycles. (see `track_cohort()`).
+-   [x] calculate life years for the specified model comparator. This did not require it's own function, as the procedure to calculate this value only required a single function call to sum the rows across the "alive" (A,B,C) states.
+-   [x] Estimate costs in each cycle using `est_costs()`.
 
 The function will then return a vector with the estimated costs and QALYs according to the inputs.
 
@@ -74,5 +73,5 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
 ## Project Admin
 
-- [ ] write a "RunAll" script for distinct scenarios.
-  - Start with a windows batch file? 
+-   [ ] write a "RunAll" script for distinct scenarios.
+    -   Start with a windows batch file?
