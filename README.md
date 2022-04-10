@@ -45,9 +45,15 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
 -   Use `DrawParams()` to generate the inputs required to execute `runModel()`. The code is designed such that this function must be called whether one wants to evaluate the model with deterministic or probabilistic inputs.
 
-### :warning:Perform Simulations
+### :warning: Simulations and Analysis
+Both deterministic and probabilistic methods will be used to evaluate the 
+decision model. Each approach was restricted to the base case configuration 
+which considered a time horizon of 20 years (20 cycles), and discounted costs 
+and effects at 6% and 0%, respectively. 
 
--   :white_check_mark:Determinsitic Simulation
+#### :white_check_mark: Perform Simulations
+
+-   :white_check_mark: Determinsitic Simulation
 
     -   Save to `data/data-gen/Simulation-Output` directory as `HIV_Deter.rds`.
 
@@ -55,7 +61,8 @@ The inputs to `runModel()` must be generated using a separate call stack:
 
     -   Save to `data/data-gen/Simulation-Output` directory as `HIV_MC-Sim_5000.rds`
 
-### :x:Analyze Simulation Results
+#### :x:Analyze Simulation Results
+
 
 -   :x:Deterministic Results Table
 
