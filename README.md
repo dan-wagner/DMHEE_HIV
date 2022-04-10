@@ -5,7 +5,14 @@ exercise was developed in response to the fact that the textbook instructions
 are designed and organized for a spreadsheet environment. A different approach 
 is required when using a programming language like R. 
 
-## Model Summary
+## Important Note on Scope
+The functions included in this repo are restricted to the development of the 
+HIV model itself. Given that consistent analytic frameworks must be applied to 
+all decision models, a separate R package (`HEEToolkit`) was developed to 
+promote re-usability and save future development time. At present, I do not 
+provide access to this package. 
+
+# Model Summary
 
 The HIV model was originally developed for a cost-effectiveness analysis of zidovudine monotherapy compared with combination therapy of zidovudine and lamivudine. These strategies were compared in patients with HIV infection, and is originally reported in Chancellor et al. 1997 (1).
 
@@ -27,31 +34,49 @@ For the purpose of this exercise, treatment effects are measured in terms of Lif
 
 1.  Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
 
-## Progress
+## Model Parameters
+:warning: Add a description of the model parameters here. 
 
-### :white_check_mark:Develop HIV Model
+# Project Organization
+:warning: Provide an explanation of how the project is organized here. 
 
-The HIV model can be evaluated by changing the parameter inputs to `runModel()`. This function is designed to capture three distinct components within a single module. Each time this function is called, other function calls are made to:
+# Progress
 
--   [x] track the cohort through the markov structure over a certain number of cycles. (see `track_cohort()`).
--   [x] calculate life years for the specified model comparator. This did not require it's own function, as the procedure to calculate this value only required a single function call to sum the rows across the "alive" (A,B,C) states.
+## :white_check_mark:Develop HIV Model
+
+The HIV model can be evaluated by changing the parameter inputs to `runModel()`. 
+This function is designed to capture three distinct components within a single 
+module. Each time this function is called, other function calls are made to:
+
+-   [x] track the cohort through the markov structure over a certain number of 
+cycles. (see `track_cohort()`).
+-   [x] calculate life years for the specified model comparator. This did not 
+require it's own function, as the procedure to calculate this value only 
+required a single function call to sum the rows across the "alive" (A,B,C) 
+states.
 -   [x] Estimate costs in each cycle using `est_costs()`.
 
-The function will then return a vector with the estimated costs and QALYs according to the inputs.
+The function will then return a vector with the estimated costs and QALYs 
+according to the inputs.
 
 The inputs to `runModel()` must be generated using a separate call stack:
 
--   Use `getParams()` to look for a parameter set in the `data/data-gen/Model-Params` sub-directory. If the directory is empty, the function will re-generate the parameters from raw data and save it there. It will return a statement with a relative file path to read the data into memory.
+-   Use `getParams()` to look for a parameter set in the 
+`data/data-gen/Model-Params` sub-directory. If the directory is empty, the 
+function will re-generate the parameters from raw data and save it there. It 
+will return a statement with a relative file path to read the data into memory.
 
--   Use `DrawParams()` to generate the inputs required to execute `runModel()`. The code is designed such that this function must be called whether one wants to evaluate the model with deterministic or probabilistic inputs.
+-   Use `DrawParams()` to generate the inputs required to execute `runModel()`. 
+The code is designed such that this function must be called whether one wants 
+to evaluate the model with deterministic or probabilistic inputs.
 
-### :warning: Simulations and Analysis
+## :warning: Simulations and Analysis
 Both deterministic and probabilistic methods will be used to evaluate the 
 decision model. Each approach was restricted to the base case configuration 
 which considered a time horizon of 20 years (20 cycles), and discounted costs 
 and effects at 6% and 0%, respectively. 
 
-#### :white_check_mark: Perform Simulations
+### :white_check_mark: Perform Simulations
 
 -   :white_check_mark: Determinsitic Simulation
 
@@ -61,7 +86,7 @@ and effects at 6% and 0%, respectively.
 
     -   Save to `data/data-gen/Simulation-Output` directory as `HIV_MC-Sim_5000.rds`
 
-#### :x:Analyze Simulation Results
+### :x:Analyze Simulation Results
 
 
 -   :x:Deterministic Results Table
