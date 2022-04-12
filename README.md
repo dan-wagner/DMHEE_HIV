@@ -93,14 +93,20 @@ and effects at 6% and 0%, respectively.
     - :white_check_mark: Prepare CEA Results Table. 
       - :white_check_mark: Perform incremental analysis
       - :white_check_mark: Perform Net-Benefits analysis.
-    - :warning: Plot Cost-Effectiveness Plane. 
+    - :white_check_mark: Plot Cost-Effectiveness Plane. 
     - :x: Plot Cost-Effectiveness Acceptability Curve
     
+:information_source: Added function to plot Cost-Effectiveness plane. Used to 
+limit code duplication for different conditions it could be generated. 
+    
 Note
-  - Design question to think about. Current design is based on premise that 
-  simulation data are preserved. Relevant analyses can then be re-run at any 
-  point in time. Makes me wonder if there are circumstances where this will not 
-  be ideal. 
+  - Current design is based on premise that simulation data are preserved. 
+  Relevant analyses can then be re-run at any point in time. Makes me wonder if 
+  there are circumstances where this will not be a good idea, and that the 
+  analysis output should be preserved. 
+  - Future Update: 
+    - Code to generate display table has lots of common features. Turn it into 
+    a function! 
 
 ## Project Admin
 
