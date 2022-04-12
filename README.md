@@ -88,20 +88,19 @@ and effects at 6% and 0%, respectively.
 
 ### :x:Analyze Simulation Results
 
-
--   :x:Deterministic Results Table
-
--   :x:Probabilistic Analysis
-
-    -   :x:Perform incremental analysis
-
-    -   :x:Perform net-benefits analysis
-
-    -   :x:Prepare CEA Results Table.
-
-    -   :x:Plot Cost-Effectiveness Plane.
-
-    -   :x:Plot CEAC.
+  * :white_check_mark: Deterministic Results Table
+  * :warning: Probabilistic Analysis
+    - :white_check_mark: Prepare CEA Results Table. 
+      - :white_check_mark: Perform incremental analysis
+      - :white_check_mark: Perform Net-Benefits analysis.
+    - :warning: Plot Cost-Effectiveness Plane. 
+    - :x: Plot Cost-Effectiveness Acceptability Curve
+    
+Note
+  - Design question to think about. Current design is based on premise that 
+  simulation data are preserved. Relevant analyses can then be re-run at any 
+  point in time. Makes me wonder if there are circumstances where this will not 
+  be ideal. 
 
 ## Project Admin
 
