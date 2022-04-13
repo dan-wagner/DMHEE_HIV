@@ -121,3 +121,62 @@ viz_CEplane <- function(data,
 
 
 # PLOT THE COST-EFFECTIVENESS ACCEPTABILITY CURVE ##############################
+viz_CEAC <- function(data, 
+                     lambda, 
+                     Effects, 
+                     NB_type = "NMB", 
+                     Frontier = FALSE){
+  # Calculate Net Benefits
+  eNB <- HEEToolkit::nb_analysis(data = data, 
+                                 Effects = Effects, 
+                                 type = NB_type, 
+                                 lambda = lambda)
+  # Transform from array to data frame
+  eNB <- as.data.frame(x = eNB)
+  eNB <- tibble::rownames_to_column(.data = eNB, var = "j")
+  ## Convert from Wide to Long Format
+  eNB <- 
+    tidyr::pivot_longer(data = eNB, 
+                        cols = -"j", 
+                        names_to = c("stat", "lambda"), 
+                        names_transform = list(lambda = as.double), 
+                        names_sep = "\\.",
+                        values_to = "result") |> 
+    tidyr::pivot_wider(names_from = "stat", 
+                       values_from = "result")
+  if (isTRUE(Frontier)) {
+    # Identify rows on the CEA-Frontier
+    eNB <- 
+      eNB |> 
+      dplyr::group_by(lambda) |> 
+      dplyr::mutate(onFrontier = dplyr::if_else(prob_CE == max(prob_CE), 
+                                                1, 0)) |> 
+      dplyr::ungroup()
+  }
+  
+  # Create Plot
+  CEAC <- 
+    ggplot2::ggplot(data = eNB, 
+                    mapping = ggplot2::aes(x = lambda, 
+                                           y = prob_CE,
+                                           colour = j)) + 
+    ggplot2::geom_line() + 
+    ggplot2::labs(caption = paste("Data generated from Monte Carlo simulation", 
+                                  "of", nrow(data), "iterations."),
+                  x = "Value of Threshold Ratio (\U03BB)", 
+                  y = "Probability Cost-Effective")
+  
+  if (isTRUE(Frontier)) {
+    CEAC <- 
+      CEAC + 
+      ggplot2::geom_line(data = dplyr::filter(eNB, onFrontier == 1), 
+                         mapping = ggplot2::aes(x = lambda, y = prob_CE), 
+                         colour = "yellow", 
+                         size = 2, 
+                         alpha = 0.3)
+  }
+  
+  
+  # Return Output
+  return(CEAC)
+}
