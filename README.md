@@ -70,7 +70,7 @@ will return a statement with a relative file path to read the data into memory.
 The code is designed such that this function must be called whether one wants 
 to evaluate the model with deterministic or probabilistic inputs.
 
-## :warning: Simulations and Analysis
+## :white_check_mark: Simulations and Analysis
 Both deterministic and probabilistic methods will be used to evaluate the 
 decision model. Each approach was restricted to the base case configuration 
 which considered a time horizon of 20 years (20 cycles), and discounted costs 
@@ -86,10 +86,10 @@ and effects at 6% and 0%, respectively.
 
     -   Save to `data/data-gen/Simulation-Output` directory as `HIV_MC-Sim_5000.rds`
 
-### :x:Analyze Simulation Results
+### :white_check_mark:Analyze Simulation Results
 
   * :white_check_mark: Deterministic Results Table
-  * :warning: Probabilistic Analysis
+  * :white_check_mark: Probabilistic Analysis
     - :white_check_mark: Prepare CEA Results Table. 
       - :white_check_mark: Perform incremental analysis
       - :white_check_mark: Perform Net-Benefits analysis.
@@ -97,7 +97,7 @@ and effects at 6% and 0%, respectively.
     - :white_check_mark: Plot Cost-Effectiveness Acceptability Curve
 
 # Notes
-  * :information_source: | Added function to plot Cost-Effectiveness plane.
+  * :information_source: Added function to plot Cost-Effectiveness plane.
     - Potential to limit code duplication. Instead uses features of input data 
     to determine how to plot the plane. Right now, that's limited to whether the 
     input data reflects output from deterministic or stochastic model 
@@ -105,7 +105,7 @@ and effects at 6% and 0%, respectively.
     - Future updates will also include features to accommodate more than two 
     alternatives, and multiple sub-groups. 
     - Plan will be to add this function to my `HEEToolkit` package. 
-  * :information_source: | Added function to plot Cost-Effectiveness 
+  * :information_source: Added function to plot Cost-Effectiveness 
   Acceptability Curve. 
     - CEACs are a requirement across projects. Opportunity to eliminate code 
     duplication. 
