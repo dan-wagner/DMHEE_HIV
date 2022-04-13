@@ -94,19 +94,36 @@ and effects at 6% and 0%, respectively.
       - :white_check_mark: Perform incremental analysis
       - :white_check_mark: Perform Net-Benefits analysis.
     - :white_check_mark: Plot Cost-Effectiveness Plane. 
-    - :x: Plot Cost-Effectiveness Acceptability Curve
-    
-:information_source: Added function to plot Cost-Effectiveness plane. Used to 
-limit code duplication for different conditions it could be generated. 
-    
-Note
-  - Current design is based on premise that simulation data are preserved. 
-  Relevant analyses can then be re-run at any point in time. Makes me wonder if 
-  there are circumstances where this will not be a good idea, and that the 
-  analysis output should be preserved. 
-  - Future Update: 
-    - Code to generate display table has lots of common features. Turn it into 
-    a function! 
+    - :white_check_mark: Plot Cost-Effectiveness Acceptability Curve
+
+# Notes
+  * :information_source: | Added function to plot Cost-Effectiveness plane.
+    - Potential to limit code duplication. Instead uses features of input data 
+    to determine how to plot the plane. Right now, that's limited to whether the 
+    input data reflects output from deterministic or stochastic model 
+    evaluation.
+    - Future updates will also include features to accommodate more than two 
+    alternatives, and multiple sub-groups. 
+    - Plan will be to add this function to my `HEEToolkit` package. 
+  * :information_source: | Added function to plot Cost-Effectiveness 
+  Acceptability Curve. 
+    - CEACs are a requirement across projects. Opportunity to eliminate code 
+    duplication. 
+    - Future updates will accommodate data which contain costs/effects for 
+    multiple sub-groups. 
+    - Plan will be to add this function to my `HEEToolkit` package.
+  * :clipboard: Function Returning Display Table
+    - Code to generate display table has lots of common features. 
+    - A good opportunity for another useful function. 
+  * :question: Workflow Design: Preserving Results
+    - Current workflow design is based on the assumption that simulation data 
+    should be preserved, and that analysis output (incremental or net-benefit) 
+    need not be. 
+    - This is based on the convenience of re-running analyses at any point in 
+    time. 
+    - However, I wonder if there are circumstances where this will no longer be 
+    a good idea. In other words, are there situations where the output from an 
+    analysis should be preserved in a machine read-able format? 
 
 ## Project Admin
 
