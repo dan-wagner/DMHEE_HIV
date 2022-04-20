@@ -12,7 +12,7 @@ Dresult <- readr::read_rds(file = Dpath)
 # Perform Incremental Analysis =================================================
 library(HEEToolkit)
 
-D.ICER <- inc_analysis(data = Dresult, Effect = "LYs")
+D.ICER <- inc_analysis(data = Dresult, Effects = "LYs")
 
 
 # Build Table ==================================================================

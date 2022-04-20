@@ -15,7 +15,7 @@ EV <- colMeans(x = MCresult, na.rm = FALSE, dims = 1)
 EV <- t(EV)
 
 library(HEEToolkit)
-IA.result <- inc_analysis(data = EV, Effect = "LYs")
+IA.result <- inc_analysis(data = EV, Effects = "LYs")
 
 ## Net-Benefits Framework ------------------------------------------------------
 ##    -Lambda: 20,000 & 30,000 GBP
