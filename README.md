@@ -3,14 +3,7 @@
 The goal of this repo is to develop and execute the HIV model from the DMHEE 
 textbook [^1]. This exercise was developed in response to the fact that the 
 textbook instructions are designed and organized for a spreadsheet environment. 
-A different approach is required when using a programming language like R. 
-
-## Important Note on Scope
-The functions included in this repo are restricted to the development of the 
-HIV model itself. Given that consistent analytic frameworks must be applied to 
-all decision models, a separate R package (`HEEToolkit`) was developed to 
-promote re-usability and save future development time. At present, I do not 
-provide access to this package. 
+A different approach is required when using a programming language [^scope]. 
 
 # Model Summary
 
@@ -134,3 +127,8 @@ and effects at 6% and 0%, respectively.
 
 [^1]: Briggs AH, Claxton K, Sculpher MJ. Decision modelling for health economic evaluation. Oxford: Oxford University Press; 2006. 237 p. (Briggs A, Gray A, editors. Oxford handbooks in health economic evaluation.)    
 [^2]: Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
+[^scope]: The functions included in this repo are restricted to the development 
+of the HIV model itself. Given that consistent analytic frameworks must be 
+applied to all decision models, a separate R package was developed to 
+promote re-usability and save future development time. This package is not yet 
+publicly available.  
