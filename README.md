@@ -1,9 +1,18 @@
 # DMHEE_HIV
 
 The goal of this repo is to develop and execute the HIV model from the DMHEE 
-textbook [^1]. This exercise was developed in response to the fact that the 
-textbook instructions are designed and organized for a spreadsheet environment. 
-A different approach is required when using a programming language [^scope]. 
+textbook in a reproducible manner [^1]. This necessitated the creation of an 
+automated workflow which was designed to capture the procedures of the 
+economic evaluation as well as those used to estimate the parameter inputs 
+[^scope]. 
+
+This project was initiated in response to the fact that the original 
+textbook exercises are designed and organized for a spreadsheet environment. 
+Adapting these exercises to a programming language offered the ability to show 
+how this model could be developed in a reproducible fashion. A collection of 
+previously identified strategies for reproducibility were used to achieve a 
+level of reproducibility that would allow for the reliable re-generation of 
+results, including intermediate data sets. 
 
 # Model Summary
 
@@ -15,15 +24,23 @@ structure is presented in the figure below.
 
 ![Structure of HIV Cohort Model](docs/Diagrams/HIV-Model.png)
 
-The diagram depicts a model which characterizes the prognosis of an HIV-positive patient in terms of four health states. Importantly, the model assumes that a patient cannot move to a less severe disease state. While this assumption may not be true today, this exercise is strictly meant as a teaching tool to illustrate the underlying methods.
+The diagram depicts a model which characterizes the prognosis of an HIV-positive 
+patient in terms of four health states. Importantly, the model assumes that a 
+patient cannot move to a less severe disease state. While this assumption may 
+not be true today, this exercise is strictly meant as a teaching tool to 
+illustrate the underlying methods.
 
--   **State A**: Less severe HIV state with CD4 cell count of 200-500 cells/mm^3.
+State A
+  : Less severe HIV state with CD4 cell count of 200-500 celss/mm^3. 
 
--   **State B**: More severe HIV state with CD4 cell count less than 200 cells/mm^3.
-
--   **State C**: AIDS.
-
--   **State D**: Death (Absorbing state).
+State B
+  : More severe HIV state with CD4 cell count less than 200 cells/mm^3. 
+  
+State C
+  : AIDS. 
+  
+State D
+  : Death (Absorbing state).
 
 For the purpose of this exercise, treatment effects are measured in terms of 
 Life-Years. Meanwhile, costs are measured in terms of the annual treatment costs 
