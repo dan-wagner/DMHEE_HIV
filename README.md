@@ -36,60 +36,75 @@ in hospital and community care settings.
 :warning: Provide an explanation of how the project is organized here. 
 
 # Progress
+:white_check_mark: Complete
+:warning: In-Progress
+:x: Ice-Box.
 
-## :white_check_mark:Develop HIV Model
+## :white_check_mark: Model Development
 
-The HIV model can be evaluated by changing the parameter inputs to `runModel()`. 
-This function is designed to capture three distinct components within a single 
-module. Each time this function is called, other function calls are made to:
+- :white_check_mark: Prepare parameter inputs from raw data | `getParams()`
+  - :white_check_mark: Transition Probabilities. 
+    - Add state transitions table for Monotherapy to `data/data-raw`.
+      - File: `data/data-raw/StateTransitions_Count_Mono.rds`. 
+    - Add relative risk of disease progression for combination therapy. 
+      - Included in body of `getParams()`. 
+  - :white_check_mark: Costs. 
+    - Add annual costs for each health state to `data/data-raw`.
+      - File: `data/data-raw/HIV_Annual-Costs.rds`.
+    - Add treatment costs. AZT: 2278 GBP, LAM: 2087 GBP. 
+      - Included in body of `getParams()`. 
+- :white_check_mark: Develop model code. 
+  - Organized into 3 separate call stacks. 
+  - :white_check_mark: Function to generate simulation-ready model parameters 
+  from raw data, `getParams()`.
+    - Looks in the `data/data-gen/Model-Params` sub-directory for a data set. If 
+    the directory is empty, the function will re-generate the parameters from 
+    raw data and save it there. It will return a statement with a relative file 
+    path to read the data into memory.
+  - :white_check_mark: Function to draw parameter values from assigned 
+  distributions, `DrawParams()`. 
+    - This function is designed to support deterministic or probabilistic 
+    analyses. If deterministic, mean values are returned for each parameter. If 
+    probabilistic, a value is drawn for each assigned distribution. 
+    - :white_check_mark: Function to define the transition matrix, 
+    `define_tmat()`[^tmat]. 
+    - :white_check_mark: Function to use method of moments technique to draw 
+    random parameter values for costs, `MoM_Costs()`. 
+  - :white_check_mark: Function to estimate costs and effects for the model, 
+  `runModel()`. 
+    - Note that `runModel()` only calculates costs and effects for a single 
+    arm. That is `j` must equal `"Mono"` or `"Comb"`. This is an intentional 
+    design choice to reduce/eliminate code duplication. It also enables the use 
+    of functional programming techniques. 
+    - :white_check_mark: Function to track the cohort through the model, 
+    `track_cohort()`. 
+    - :white_check_mark: Calculate life years for the specified model arm (`j`). 
+      - This task involved a sum of each row across the "alive"" (A,B,C) states. 
+      As a result, there was no need to create a separate function here. 
+    - :white_check_mark: Estimate Costs using function `est_Costs()`. 
 
--   [x] track the cohort through the markov structure over a certain number of 
-cycles. (see `track_cohort()`).
--   [x] calculate life years for the specified model comparator. This did not 
-require it's own function, as the procedure to calculate this value only 
-required a single function call to sum the rows across the "alive" (A,B,C) 
-states.
--   [x] Estimate costs in each cycle using `est_costs()`.
+## Simulations and Analyses
+Consistent with the exercises in the DMHEE textbook [^1], the HIV model was 
+evaluated using deterministic and stochastic approaches. Each simulation 
+considered a time horizon of 20 years (20 cycles), and discounted costs and 
+effects at 6% and 0%, respectively. 
 
-The function will then return a vector with the estimated costs and QALYs 
-according to the inputs.
+### Simulations
+| Scenario | Iterations | Status | 
+| -------- | ---------- | :----: |
+| Deterministic | 1     | :white_check_mark: | 
+| Probabilistic | 5,000 | :white_check_mark: |
 
-The inputs to `runModel()` must be generated using a separate call stack:
+Data generated from the above simulations are stored in the following directory: 
+`data/data-gen/Simulation-Output`.
 
--   Use `getParams()` to look for a parameter set in the 
-`data/data-gen/Model-Params` sub-directory. If the directory is empty, the 
-function will re-generate the parameters from raw data and save it there. It 
-will return a statement with a relative file path to read the data into memory.
-
--   Use `DrawParams()` to generate the inputs required to execute `runModel()`. 
-The code is designed such that this function must be called whether one wants 
-to evaluate the model with deterministic or probabilistic inputs.
-
-## :white_check_mark: Simulations and Analysis
-Both deterministic and probabilistic methods will be used to evaluate the 
-decision model. Each approach was restricted to the base case configuration 
-which considered a time horizon of 20 years (20 cycles), and discounted costs 
-and effects at 6% and 0%, respectively. 
-
-### :white_check_mark: Perform Simulations
-
--   :white_check_mark: Determinsitic Simulation
-
-    -   Save to `data/data-gen/Simulation-Output` directory as `HIV_Deter.rds`.
-
--   :white_check_mark:Monte Carlo Simulation (5,000 iterations)
-
-    -   Save to `data/data-gen/Simulation-Output` directory as `HIV_MC-Sim_5000.rds`
-
-### :white_check_mark:Analyze Simulation Results
-
-  * :white_check_mark: Deterministic Results Table
-  * :white_check_mark: Probabilistic Analysis
-    - :white_check_mark: Prepare CEA Results Table. 
-      - :white_check_mark: Perform incremental analysis
-      - :white_check_mark: Perform Net-Benefits analysis.
-    - :white_check_mark: Plot Cost-Effectiveness Plane. 
-    - :white_check_mark: Plot Cost-Effectiveness Acceptability Curve
+### :white_check_mark: Analyses and Presentation of Results
+| Task | Deterministic | Monte Carlo | 
+| ---- | :-----------: | :---------: |
+| Display Table: CEA Results | :white_check_mark: | :white_check_mark: | 
+| Plot CE Plane | :white_check_mark: | :white_check_mark: | 
+| Plot CEAC (No Frontier) | `NA` | :white_check_mark: | 
+| Plot CEAC (with Frontier) | `NA` | :white_check_mark: | 
 
 # Notes
   * :information_source: Added function to plot Cost-Effectiveness plane.
@@ -120,11 +135,6 @@ and effects at 6% and 0%, respectively.
     a good idea. In other words, are there situations where the output from an 
     analysis should be preserved in a machine read-able format? 
 
-## Project Admin
-
--   [ ] write a "RunAll" script for distinct scenarios.
-    -   Start with a windows batch file?
-
 [^1]: Briggs AH, Claxton K, Sculpher MJ. Decision modelling for health economic evaluation. Oxford: Oxford University Press; 2006. 237 p. (Briggs A, Gray A, editors. Oxford handbooks in health economic evaluation.)    
 [^2]: Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
 [^scope]: The functions included in this repo are restricted to the development 
@@ -132,3 +142,7 @@ of the HIV model itself. Given that consistent analytic frameworks must be
 applied to all decision models, a separate R package was developed to 
 promote re-usability and save future development time. This package is not yet 
 publicly available.  
+[^tmat]: The function to define the transition matrix is executed within the 
+call stack when drawing parameters. This design choice was simply due to the 
+nature of the input data. In other circumstances, like the THR model, this 
+function will be incorpored within the model call stack instead. 
