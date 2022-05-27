@@ -1,9 +1,9 @@
 # DMHEE_HIV
 
-The goal of this repo is to develop and execute the HIV model from DMHEE. This 
-exercise was developed in response to the fact that the textbook instructions 
-are designed and organized for a spreadsheet environment. A different approach 
-is required when using a programming language like R. 
+The goal of this repo is to develop and execute the HIV model from the DMHEE 
+textbook [^1]. This exercise was developed in response to the fact that the 
+textbook instructions are designed and organized for a spreadsheet environment. 
+A different approach is required when using a programming language like R. 
 
 ## Important Note on Scope
 The functions included in this repo are restricted to the development of the 
@@ -14,9 +14,11 @@ provide access to this package.
 
 # Model Summary
 
-The HIV model was originally developed for a cost-effectiveness analysis of zidovudine monotherapy compared with combination therapy of zidovudine and lamivudine. These strategies were compared in patients with HIV infection, and is originally reported in Chancellor et al. 1997 (1).
-
-A summary of the model structure is presented in the figure below.
+The HIV model was originally developed for a cost-effectiveness analysis of 
+zidovudine monotherapy compared with combination therapy of zidovudine and 
+lamivudine. These strategies were compared in patients with HIV infection, and 
+is originally reported in Chancellor et al. 1997[^2]. A summary of the model 
+structure is presented in the figure below.
 
 ![Structure of HIV Cohort Model](docs/Diagrams/HIV-Model.png)
 
@@ -30,9 +32,9 @@ The diagram depicts a model which characterizes the prognosis of an HIV-positive
 
 -   **State D**: Death (Absorbing state).
 
-For the purpose of this exercise, treatment effects are measured in terms of Life-Years. Meanwhile, costs are measured in terms of the annual treatment costs in hospital and community care settings.
-
-1.  Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
+For the purpose of this exercise, treatment effects are measured in terms of 
+Life-Years. Meanwhile, costs are measured in terms of the annual treatment costs 
+in hospital and community care settings.
 
 ## Model Parameters
 :warning: Add a description of the model parameters here. 
@@ -129,3 +131,6 @@ and effects at 6% and 0%, respectively.
 
 -   [ ] write a "RunAll" script for distinct scenarios.
     -   Start with a windows batch file?
+
+[^1]: Briggs AH, Claxton K, Sculpher MJ. Decision modelling for health economic evaluation. Oxford: Oxford University Press; 2006. 237 p. (Briggs A, Gray A, editors. Oxford handbooks in health economic evaluation.)    
+[^2]: Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
