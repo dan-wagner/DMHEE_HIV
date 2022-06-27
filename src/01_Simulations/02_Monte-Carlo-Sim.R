@@ -35,5 +35,5 @@ readr::write_rds(x = HIV_result,
                  file = path_wd("data", 
                                 "data-gen", 
                                 "Simulation-Output", 
-                                "HIV_MC-Sim_5000", 
+                                "MC-Sim", 
                                 ext = "rds"))

@@ -30,5 +30,5 @@ readr::write_rds(x = HIV_result,
                  file = path_wd("data", 
                                 "data-gen", 
                                 "Simulation-Output", 
-                                "HIV_Deter", 
+                                "Deter", 
                                 ext = "rds"))

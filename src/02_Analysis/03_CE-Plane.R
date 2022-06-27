@@ -9,7 +9,7 @@ source(file.path("src", "FUNS", "Plots.R"))
 HIVresult <- readr::read_rds(file = file.path("data", 
                                               "data-gen", 
                                               "Simulation-Output", 
-                                              "HIV_Deter.rds"))
+                                              "Deter.rds"))
 names(dimnames(HIVresult)) <- c("Result", "j")
 
 ## Generate Plot ---------------------------------------------------------------
@@ -36,7 +36,7 @@ ggplot2::ggsave(filename = file.path("results", "CE-Plane_Deter.png"),
 HIVresult.MC <- readr::read_rds(file = file.path("data", 
                                                  "data-gen", 
                                                  "Simulation-Output", 
-                                                 "HIV_MC-Sim_5000.rds"))
+                                                 "MC-Sim.rds"))
 ## Generate Plot ---------------------------------------------------------------
 HIV.cep.MC <- 
   viz_CEplane(data = HIVresult.MC, 
