@@ -129,7 +129,7 @@ viz_CEAC <- function(data,
   # Calculate Net Benefits
   eNB <- HEEToolkit::nb_analysis(data = data, 
                                  Effects = Effects, 
-                                 type = NB_type, 
+                                 nbType = NB_type, 
                                  lambda = lambda)
   # Transform from array to data frame
   eNB <- as.data.frame(x = eNB)

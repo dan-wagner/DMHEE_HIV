@@ -23,7 +23,7 @@ IA.result <- inc_analysis(data = EV, Effects = "LYs")
 NB.result <- nb_analysis(data = MCresult, 
                          lambda = c(20000, 30000), 
                          Effects = "LYs", 
-                         type = "NMB")
+                         nbType = "NMB")
 
 ### Add column for P_Error for j which is max CE
 
