@@ -23,29 +23,19 @@ IA.result <- inc_analysis(data = EV, Effects = "LYs")
 NB.result <- nb_analysis(data = MCresult, 
                          lambda = c(20000, 30000), 
                          Effects = "LYs", 
-                         nbType = "NMB")
+                         nbType = "NMB", 
+                         show.error = TRUE)
 
-### Add column for P_Error for j which is max CE
-
-maxP.CE <- 
-apply(X = NB.result[,"prob_CE",], 
-      MARGIN = c("lambda"), 
-      FUN = max)
-
-NB.result <- 
-sapply(X = dimnames(NB.result)$lambda, 
-       FUN = \(x){
-         cbind(NB.result[,,x], prob_ER = 0)
-       }, 
-       simplify = "array")
-
-for (i in seq_along(names(maxP.CE))) {
-  NB.result[,"prob_ER", i] <- ifelse(NB.result[,"prob_CE",i] == maxP.CE[[i]], 
-                                     1-NB.result[,"prob_CE", i], NA)
+for (l in seq_along(c(20000, 30000))) {
+  j.na.error <- which(NB.result[,"prob_CE",l] != max(NB.result[,"prob_CE",l]))
+  NB.result[j.na.error,"p_error",l] <- NA
 }
 
 # Build Table ==================================================================
 ## Convert Output to Data Frame ------------------------------------------------
+
+
+
 DF <- cbind(as.data.frame(IA.result), 
             as.data.frame(NB.result))
 
@@ -83,9 +73,9 @@ Adopt.tbl <-
              "eNB.30000" = "NMB", 
              "prob_CE.20000" = "P(CE)", 
              "prob_CE.30000" = "P(CE)", 
-             "prob_ER.20000" = "P(Error)", 
-             "prob_ER.30000" = "P(Error)") |> 
-  fmt_missing(columns = contains(match = "ER"), 
+             "p_error.20000" = "P(Error)", 
+             "p_error.30000" = "P(Error)") |> 
+  fmt_missing(columns = contains(match = "p_error"), 
               missing_text = "---")
 
 ### Format: Currency and Numbers 
