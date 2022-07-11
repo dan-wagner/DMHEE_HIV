@@ -23,7 +23,7 @@ HIV_result <-
          simplify = "array") |> 
   t()
 
-names(dimnames(HIV_result)) <- c("j", "Results")
+names(dimnames(HIV_result)) <- c("j", "Result")
 
 # Save Output ==================================================================
 readr::write_rds(x = HIV_result, 
