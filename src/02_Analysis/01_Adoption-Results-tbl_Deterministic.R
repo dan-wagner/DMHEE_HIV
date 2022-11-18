@@ -11,7 +11,7 @@ simResult <- readr::read_rds(file = file.path("data",
 # Perform Incremental Analysis =================================================
 library(HEEToolkit)
 
-D.ICER <- inc_analysis(data = simResult, Effects = "LYs")
+D.ICER <- inc_analysis(data = simResult, effect_measure = "LYs")
 
 
 # Build Table ==================================================================

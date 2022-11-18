@@ -11,14 +11,14 @@ simResult <- readr::read_rds(file = file.path("data",
 # Perform Analyses =============================================================
 ## Incremental Analysis --------------------------------------------------------
 library(HEEToolkit)
-IA.result <- inc_analysis(data = simResult, Effects = "LYs")
+IA.result <- inc_analysis(data = simResult, effect_measure = "LYs")
 
 ## Net-Benefits Framework ------------------------------------------------------
 ##    -Lambda: 20,000 & 30,000 GBP
 
 NB.result <- nb_analysis(data = simResult, 
                          lambda = c(20000, 30000), 
-                         Effects = "LYs", 
+                         effect_measure = "LYs", 
                          nbType = "NMB", 
                          show.error = TRUE)
 
