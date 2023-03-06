@@ -1,46 +1,48 @@
-getParams <- function() {
-  Params.Dir <- "data/data-gen/Model-Params"
-  if(isFALSE(dir.exists(Params.Dir))) {
-    usethis::ui_oops("Missing {usethis::ui_path(Params.Dir)} sub-directory.")
-    
-    dir.create(path = Params.Dir)
-    
-    usethis::ui_done("Created {usethis::ui_path(Params.Dir)} sub-directory.")
-  }
+getParams <- function(FileName = "HIV-Params.rds") {
+  # Set Path to Output File
+  param_path <- file.path("data", "data-gen", "Model-Params", FileName)
+  # Check if File exists
+  params_exist <- file.exists(param_path)
   
-  Dir.Content <- list.files(path = Params.Dir)
-  if (length(Dir.Content) == 0) {
+  if (isFALSE(params_exist)) {
     usethis::ui_info("Model Parameters have not been generated!")
-    usethis::ui_info("Preparing dataset from raw data")
+    # Check if sub-directory exists
+    param_dir <- file.path("data", "data-gen", "Model-Params")
+    dir_present <- dir.exists(paths = param_dir)
     
-    StateCounts.mono <- readr::read_rds(path_wd("data", 
-                                                "data-raw", 
-                                                "StateTransitions_Count_Mono", 
-                                                ext = "rds"))
-    
-    AnnCosts <- readr::read_rds(path_wd("data", 
-                                        "data-raw", 
-                                        "HIV_Annual-Costs", ext = "rds"))
-    
-    HIV_Params <- 
-      list(StateCount = StateCounts.mono, 
-           RR = c(Mean = 0.509, 
-                  CI_lower = 0.365, 
-                  CI_upper = 0.710), 
-           AnnualCost = AnnCosts, 
-           RxPrices = c(AZT = 2278, LAM = 2087))
-    
-    Param.Path <- file.path(Params.Dir, "HIV-Params.rds")
-    
-    readr::write_rds(x = HIV_Params, 
-                     file = Param.Path)
-    
-    usethis::ui_done("{usethis::ui_field('HIV_Params')} saved to {usethis::ui_path(Param.Path)}")
+    if (isFALSE(params_dir)) {
+      usethis::ui_oops("Missing {usethis::ui_path(param_dir)} sub-directory.")
+      dir.create(path = param_dir)
+      usethis::ui_done("Created {usethis::ui_path(param_dir)} sub-directory.")
+    }
+    # Set Directory for Raw Data
+    raw_dir <- file.path("data", "data-raw")
+    usethis::ui_info("Generating Parameters from raw data")
+    params <- list.files(path = file.path("data", "data-raw"), 
+                         pattern = ".rds", 
+                         full.names = TRUE)
+    names(params) <- sub(pattern = "data/data-raw/", 
+                         replacement = "", 
+                         x = params)
+    names(params) <- sub(pattern = ".rds", "", names(params))
+    names(params) <- sub(pattern = "StateTransitions_Count_Mono", 
+                         replacement = "StateCount", 
+                         x = names(params))
+    names(params) <- sub(pattern = "Relative-Risk_Progression", 
+                         replacement = "RR", 
+                         x = names(params))
+    names(params) <- sub(pattern = "HIV_Annual-Costs", 
+                         replacement = "AnnualCost", 
+                         x = names(params))
+    params <- lapply(X = params, FUN = readr::read_rds)
+    # Write Data to param_path
+    readr::write_rds(x = params, file = param_path)
+    usethis::ui_done("Parameter list saved to {usethis::ui_path(param_path)}")
   } else {
-    Param.Path <- file.path(Params.Dir, "HIV-Params.rds")
-    usethis::ui_info("Load parameters from: {usethis::ui_path(Param.Path)}")
+    params <- readr::read_rds(file = param_path)
+    usethis::ui_info("Loaded parameters from: {usethis::ui_path(param_path)}")
   }
-  
+  return(params)
 }
 
 # Define Transition Matrix (Q) #################################################
