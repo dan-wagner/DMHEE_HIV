@@ -4,11 +4,7 @@ source(file.path("src", "FUNS", "HIV_Model.R"))
 source(file.path("src", "FUNS", "Model_Parameters.R"))
 
 # Get Model Parameters =========================================================
-getParams()
-HIV_Params <- readr::read_rds(file.path("data", 
-                                        "data-gen", 
-                                        "Model-Params", 
-                                        "HIV-Params.rds"))
+HIV_Params <- getParams()
 
 # Estimate Costs and Effects ===================================================
 Param_i <- DrawParams(ParamList = HIV_Params, prob = 0)
