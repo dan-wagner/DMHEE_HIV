@@ -45,43 +45,6 @@ getParams <- function(FileName = "HIV-Params.rds") {
   return(params)
 }
 
-# Define Transition Matrix (Q) #################################################
-## StateCounts = A matrix of state transitions. 
-## RR = Relative risk of severe disease from combination therapy.  
-define_tmat <- function(StateCounts, RR = 0.509, prob = 0) {
-  
-  # Calculate Probability of State Transitions using Mono Counts
-  Q <- prop.table(x = StateCounts, margin = 1)
-  Q["D", ] <- c(rep(0, 3),1)
-  
-  # Apply Random Draws if Required 
-  if (prob == 1) {
-    # AIDS ("C") to Death ("D")
-    ## Distribution: Beta
-    Q["C", "D"] <- rbeta(n = 1, shape1 = Q["C", "D"], shape2 = Q["C", "C"])
-    Q["C", "C"] <- 1 - Q["C", "C"]
-    
-    # Remaining Polytonomous Transitions
-    ## Distribution: Dirichlet
-    Q["A", ] <- MCMCpack::rdirichlet(n = 1, alpha = Q["A",])
-    Q["B", ] <- MCMCpack::rdirichlet(n = 1, alpha = Q["B",])
-  }
-  
-  # Add Dimension for each comparator
-  Q <- array(data = Q, 
-             dim = c(nrow(Q), ncol(Q), length(c("Mono", "Comb"))), 
-             dimnames = list(Start = rownames(Q), 
-                             End = colnames(Q), 
-                             j = c("Mono", "Comb")))
-  
-  
-  # Adjust transition probabilities for Comb using RR
-  Q[,,"Comb"] <- Q[,,"Comb"] * RR
-  diag(Q[,,"Comb"]) <- 1 - (rowSums(x = Q[,,"Comb"]) - diag(Q[,,"Comb"]))
-  
-  return(Q)
-}
-
 # Draw Parameters deterministically or probabilsitically =======================
 MoM_Costs <- function(Mean, SE){
   Alpha <- Mean^2/SE^2
@@ -97,9 +60,6 @@ MoM_Costs <- function(Mean, SE){
 DrawParams <- function(ParamList, prob = 0) {
   # Relative Risk of Disease Progression ---------------------------------------
   ## Distribution: Log Normal
-  if (prob == 0) {
-    ParamList$RR <- ParamList$RR[["Mean"]]
-  } 
   if (prob == 1) {
     RRsd <- (log(ParamList$RR[["CI_upper"]]) - 
                log(ParamList$RR[["CI_lower"]]))/(1.96*2)
@@ -108,12 +68,28 @@ DrawParams <- function(ParamList, prob = 0) {
       rlnorm(n = 1, 
              meanlog = log(ParamList$RR[["Mean"]]), 
              sdlog = RRsd)
+  } else {
+    ParamList$RR <- ParamList$RR[["Mean"]]
   }
   
   # State Transitions ----------------------------------------------------------
-  ParamList$Q <- define_tmat(StateCounts = ParamList$StateCount, 
-                             RR = ParamList$RR, 
-                             prob = prob)
+  ParamList$StateCount <- prop.table(x = ParamList$StateCount, margin = 1)
+  ParamList$StateCount["D", ] <- c(rep(0, 3), 1)
+  if (prob == 1) {
+    # AIDS ("C") to Death ("D")
+    ## Distribution: Beta
+    ParamList$StateCount["C", "D"] <- 
+      rbeta(n = 1, 
+            shape1 = ParamList$StateCount["C", "D"],
+            shape2 = ParamList$StateCount["C", "C"])
+    ParamList$StateCount["C", "C"] <- 1 - ParamList$StateCount["C", "D"]
+    # Remaining Polytonomous Transitions
+    ## Distribution: Dirichlet
+    ParamList$StateCount["A", ] <- 
+      MCMCpack::rdirichlet(n = 1, alpha = ParamList$StateCount["A",])
+    ParamList$StateCount["B", ] <- 
+      MCMCpack::rdirichlet(n = 1, alpha = ParamList$StateCount["B",])
+  }
   
   # Annual Cost ----------------------------------------------------------------
   ## Distribution: Gamma
@@ -140,9 +116,5 @@ DrawParams <- function(ParamList, prob = 0) {
     ParamList$AnnualCost <- t(ParamList$AnnualCost)
   }
 
-  
-  ParamList <- ParamList[c("Q", "AnnualCost", "RxPrices")]
-  
-  
   return(ParamList)
 }
