@@ -1,4 +1,20 @@
 getParams <- function(FileName = "HIV-Params.rds") {
+  # Get Model Parameters
+  #
+  # Args: 
+  #   FileName: The name to give to the parameter file. Default is 
+  #   "HIV-Params.rds"
+  #
+  # Returns: 
+  # A list with four named elements: 
+  #   StateCount: The count of patients who moved between health states in 
+  #   the reference study for monotherapy.
+  #   RR: The relative risk of severe disease from combination therapy.
+  #   AnnualCost: A matrix of the direct medical and community costs associated
+  #   with Health States A, B, and C.
+  #   RxPrices: A named vector of the price for each drug considered in the 
+  #   model.
+  
   # Set Path to Output File
   param_path <- file.path("data", "data-gen", "Model-Params", FileName)
   # Check if File exists
@@ -46,6 +62,7 @@ getParams <- function(FileName = "HIV-Params.rds") {
 }
 
 # Draw Parameters deterministically or probabilsitically =======================
+## Method of Moments Implementation: Gamma Distribution ------------------------
 MoM_Costs <- function(Mean, SE){
   Alpha <- Mean^2/SE^2
   Beta <- SE^2/Mean
@@ -56,8 +73,15 @@ MoM_Costs <- function(Mean, SE){
   return(Result)
 }
 
-
+## Perform Single Mone Carlo draw of each model parameter ----------------------
 DrawParams <- function(ParamList, prob = 0) {
+  # Draw Deterministic or Random Values for Simulation
+  #
+  # Args:
+  #   ParamList: A list of parameter values required by the simulation.
+  #   Prob: A switch to determine if a random value should be drawn or not. 
+  #   Default is `0`, while 1 allows for random draw.
+  
   # Relative Risk of Disease Progression ---------------------------------------
   ## Distribution: Log Normal
   if (prob == 1) {
