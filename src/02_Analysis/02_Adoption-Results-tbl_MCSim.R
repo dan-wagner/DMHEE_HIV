@@ -8,6 +8,20 @@ simResult <- readr::read_rds(file = file.path("data",
                                               "Simulation-Output", 
                                               "MC-Sim.rds"))
 
+
+adopt_tbl(x = simResult, 
+          effect_measure = "LYs", 
+          lambda = c(20000, 30000), 
+          nbType = "NHB",
+          currency = "GBP") |> 
+  gt::tab_footnote(data = _, 
+               footnote = paste("Mono: Zidovudine Monotherapy", 
+                                paste("Comb: Zidovudine &", 
+                                      "Lamivudine Combination", 
+                                      "Therapy."), 
+                                sep = "; "), 
+               locations = gt::cells_stubhead())
+
 # Perform Analyses =============================================================
 ## Incremental Analysis --------------------------------------------------------
 library(HEEToolkit)
@@ -69,19 +83,17 @@ displayTBL <- cols_hide(data = displayTBL,
                         columns = contains("Dom"))
 
 ### Format: Net-Benefits
-displayTBL <- tab_spanner(data = displayTBL, 
-                          label = paste0("\u03BB = ", "\u00A3", "20000/LY"), 
+displayTBL <- 
+  tab_spanner(data = displayTBL,
+              label = paste0("\u03BB = ", "\u00A3", "20000/LY"), 
               columns = contains("20000")) |> 
   tab_spanner(label = paste0("\u03BB = ", "\u00A3", "30000/LY"), 
               columns = contains("30000"))
 
 displayTBL <- cols_label(.data = displayTBL, 
-                         "eNB.20000" = "NMB",
-                         "eNB.30000" = "NMB", 
-                         "prob_CE.20000" = "P(CE)", 
-                         "prob_CE.30000" = "P(CE)", 
-                         "p_error.20000" = "P(Error)", 
-                         "p_error.30000" = "P(Error)")
+                         contains(match = "eNB") ~ "NMB",
+                         contains(match = "prob_CE") ~ "P(CE)", 
+                         contains(match = "p_error") ~ "P(Error)")
 
 displayTBL <- sub_missing(data = displayTBL, 
                           columns = contains(match = "p_error"), 
