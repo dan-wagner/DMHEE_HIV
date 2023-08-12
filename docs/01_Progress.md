@@ -12,7 +12,7 @@ Status indicators for each task (or sub-task) are defined as:
 | [Model Development](#model-development) | :white_check_mark:  | 
 | [Simulations](#simulations) | :white_check_mark: | 
 | Analysis: [Adoption Decision](#adoption-decision) | :white_check_mark: | 
-| Analysis: [Research Decision](#research-decision) | :white_check_mark: |
+| Analysis: [Research Decision](#research-decision) | :warning: |
 
 # Model Development
 Model development is comprised of the following sub-components. It is considered
@@ -64,7 +64,7 @@ Data generated from each simulation were stored in the following sub-directory: 
   * Deterministic Simulation: :white_check_mark:
   * Monte Carlo Simulation: :white_check_mark:
   * Nested Monte Carlo Simulations: :warning:
-    - &phi; = StateCounts (Monotherapy): :x:
+    - &phi; = State Counts (Monotherapy): :white_check_mark:
     - &phi; = Relative Risk: :x:
     - &phi; = Annual Costs: :x:
 
