@@ -63,15 +63,20 @@ Data generated from each simulation were stored in the following sub-directory: 
 
   * Deterministic Simulation: :white_check_mark:
   * Monte Carlo Simulation: :white_check_mark:
-  
-# Adoption Decision
+  * Nested Monte Carlo Simulations: :warning:
+    - &phi; = StateCounts (Monotherapy): :x:
+    - &phi; = Relative Risk: :x:
+    - &phi; = Annual Costs: :x:
+
+# Analysis
+## Adoption Decision
 
   * :white_check_mark: Results table | Deterministic 
   * :white_check_mark: Results table | Probabilistic
   * :white_check_mark: Cost-Effectiveness Plane
   * :white_check_mark: CEAC
   
-# Research Decision
+## Research Decision
 
   * :x: EVPI
   * :x: EVPPI
