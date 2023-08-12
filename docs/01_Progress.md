@@ -66,7 +66,7 @@ Data generated from each simulation were stored in the following sub-directory: 
   * Nested Monte Carlo Simulations: :warning:
     - &phi; = State Counts (Monotherapy): :white_check_mark:
     - &phi; = Relative Risk: :white_check_mark:
-    - &phi; = Annual Costs: :x:
+    - &phi; = Annual Costs: :white_check_mark:
 
 # Analysis
 ## Adoption Decision
