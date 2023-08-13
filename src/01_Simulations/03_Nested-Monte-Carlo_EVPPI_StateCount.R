@@ -36,7 +36,7 @@ nmc_out <-
                         simplify = "array")
                      }, 
                      simplify = "array")
-names(dimnames(nmc_out)) <- c("j", "Result", "PSI", "PHI")
+names(dimnames(nmc_out)) <- c("Result", "j", "PSI", "PHI")
 nmc_out <- aperm(a = nmc_out, perm = c("PSI", "Result", "j", "PHI"))
 sim_stop <- Sys.time()
 
