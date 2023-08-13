@@ -78,9 +78,9 @@ Data generated from each simulation were stored in the following sub-directory: 
   
 ## Research Decision
 
-  * :x: EVPI
-  * :x: EVPPI
-    - :x: Monotherapy Transitions
-    - :x: Relative Risk Parameter
-    - :x: Annual Costs
+  * :x: VoI Results Table (in-development)
+  * :white_check_mark: Figures
+    - :white_check_mark: EVPI Plot
+    - :white_check_mark: EVPPI Plot
+      - Includes all uncertain parameters in one figure. 
 
