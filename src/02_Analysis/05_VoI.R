@@ -71,7 +71,8 @@ ggsave(filename = file.path("results", "VoI_EVPI-pt.png"),
        plot = fig_evpi, 
        device = "png", 
        width = 10, 
-       height = 10)
+       height = 10, 
+       bg = "white")
 
 EVPPI_df <- array2DF(x = EVPPI, responseName = "value")
 EVPPI_df <- pivot_wider(data = EVPPI_df, 
@@ -101,4 +102,5 @@ ggsave(filename = file.path("results", "VoI_EVPPI-pt.png"),
        plot = fig_evppi, 
        device = "png", 
        width = 10, 
-       height = 10)
+       height = 10, 
+       bg = "white")
