@@ -74,17 +74,21 @@ MoM_Costs <- function(Mean, SE){
 }
 
 ## Perform Single Mone Carlo draw of each model parameter ----------------------
-DrawParams <- function(ParamList, prob = 0) {
+DrawParams <- function(ParamList, prob = FALSE) {
   # Draw Deterministic or Random Values for Simulation
   #
   # Args:
   #   ParamList: A list of parameter values required by the simulation.
-  #   Prob: A switch to determine if a random value should be drawn or not. 
-  #   Default is `0`, while 1 allows for random draw.
+  #   Prob: Logical (Default = `FALSE`). Controls whether parameter values 
+  #   represent the mean (`FALSE`) or a random value from an assigned 
+  #   distribution. 
+  #
+  # Returns: 
+  #   A list of 5 elements, representing the sampled values. 
   
   # Relative Risk of Disease Progression ---------------------------------------
   ## Distribution: Log Normal
-  if (prob == 1) {
+  if (isTRUE(prob)) {
     RRsd <- (log(ParamList$RR[["CI_upper"]]) - 
                log(ParamList$RR[["CI_lower"]]))/(1.96*2)
     
@@ -99,7 +103,7 @@ DrawParams <- function(ParamList, prob = 0) {
   # State Transitions ----------------------------------------------------------
   ParamList$StateCount <- prop.table(x = ParamList$StateCount, margin = 1)
   ParamList$StateCount["D", ] <- c(rep(0, 3), 1)
-  if (prob == 1) {
+  if (isTRUE(prob)) {
     # AIDS ("C") to Death ("D")
     ## Distribution: Beta
     ParamList$StateCount["C", "D"] <- 
@@ -121,7 +125,7 @@ DrawParams <- function(ParamList, prob = 0) {
   ## information about the variance of the costs. Therefore, it is assumed that 
   ## SE of annual costs is equal to the mean. 
   
-  if (prob == 1) {
+  if (isTRUE(prob)) {
     ABcosts <- MoM_Costs(Mean = ParamList$AnnualCost, 
                          SE = ParamList$AnnualCost)
     
