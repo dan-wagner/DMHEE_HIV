@@ -10,12 +10,13 @@ HIV_Params <- getParams()
 HIV_result <- 
 replicate(n = 5000, 
           expr = {
-            Param_i <- DrawParams(ParamList = HIV_Params, prob = 1)
+            Param_i <- DrawParams(ParamList = HIV_Params, prob = TRUE)
             Result_i <- 
               sapply(X = list(Mono = "Mono", Comb = "Comb"), 
                      FUN = runModel, 
                      ParamList = Param_i, 
-                     nCycles = 20, 
+                     comb_yrs = 2,
+                     n_cycles = 20, 
                      oDR = 0, 
                      cDR = 0.06, 
                      simplify = "array")
