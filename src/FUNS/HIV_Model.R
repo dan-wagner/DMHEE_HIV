@@ -11,90 +11,152 @@
 #  - Cycle Length is 1 year. 
 
 # DEFINE TRANSITION MATRIX #####################################################
-define_tmat <- function(Q, RR) {
+define_tmat <- function(j, Q_mono, RR, comb_yrs = 2, n_cycles = 20) {
   # Define Transition Matrix for each comparator
   #
   # Args:
-  #   Q: A matrix of the probability of transitioning between states for the 
-  #   Mono arm of the model. Expects the StateCount element from the parameter
-  #   list.
+  #   j: Character. The arm of the decision model. Accepted values include 
+  #     `"Mono"` or `"Comb"`. 
+  #   Q_mono: A matrix of the probability of transitioning between states for 
+  #     the Monotherapy arm of the model. Expects the `StateCount` element from
+  #     the parameter list.
   #   RR: The relative risk of severe disease from combination therapy.
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
+  #     is assumed to receive combination therapy. Default = 2 (Base Case). 
+  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years) 
+  #     in the cohort simulation. Default = 20 (Base Case). 
   #
   # Returns: 
   #   A 3-D Array representing the transition matrices for each alternative.
   #   Rows represent the start state, columns represent the end state, and
-  #   matrices represent the different comparators for the economic model.
-  Q <- array(data = Q, 
-             dim = c(nrow(Q), ncol(Q), length(c("Mono", "Comb"))), 
-             dimnames = list(Start = rownames(Q), 
-                             End = colnames(Q), 
-                             j = c("Mono", "Comb")))
-  # Adjust transition probabilities for Comb using RR
-  Q[,,"Comb"] <- Q[,,"Comb"] * RR
-  diag(Q[,,"Comb"]) <- 1 - (rowSums(x = Q[,,"Comb"]) - diag(Q[,,"Comb"]))
+  #   matrices represent each cycle of the economic model. 
+  
+  # Validate Inputs
+  match.arg(arg = j, choices = c("Mono", "Comb"), several.ok = FALSE)
+  stopifnot(comb_yrs <= n_cycles)
+  
+  # Build Blank Output Array
+  Q <- array(data = 0, 
+             dim = c(nrow(Q_mono), ncol(Q_mono), n_cycles), 
+             dimnames = list(From = rownames(Q_mono), 
+                             To = colnames(Q_mono), 
+                             Cycle = NULL))
+  
+  
+  # Define Transition Probabilities
+  if (j == "Comb") {
+    Q_comb <- Q_mono * RR
+    diag(Q_comb) <- 1 - (rowSums(x = Q_comb) - diag(Q_comb))
+    
+    # Identify Cycles Patient is on Combination Therapy
+    comb_id <- seq_len(comb_yrs)
+    
+    # Assign Values to Transition Matrix
+    Q[, , comb_id] <- Q_comb
+    Q[, , -comb_id] <- Q_mono
+  } else {
+    Q[] <- Q_mono
+  }
   
   return(Q)
 }
 
 # TRACK COHORT #################################################################
-## j: Arm, will accept "Mono", or "Comb". 
-## Q: Transition Matrix (Monotherapy)
-## nCycles: Number of cycles to consider in the model. Assume years. 
-
-track_cohort <- function(j, Q, nCycles = 20){
-  j <- match.arg(arg = j, choices = c("Mono", "Comb"))
-  # Define Blank Cohort Trace --------------------------------------------------
-  trace <- array(data = 0, 
-                 dim = c(length(1:nCycles), 
-                         length(colnames(Q))), 
-                 dimnames = list(Cycle = NULL, 
-                                 State = colnames(Q)))
-  # Populate Cohort Trace ------------------------------------------------------
-  Cohort0 <- c(1, rep(0, 3)) # Set Starting States
-  names(Cohort0) <- colnames(Q)
+track_cohort <- function(Q){
+  # Generate the Cohort Trace for the Economic Model
+  #
+  # Args: 
+  #   Q: Numeric. A 3-Dimensional array representing the time-dependent 
+  #   transition probabilities for the specific arm of the decision model. 
+  #
+  # Returns: 
+  #   An array with 2 dimensions (i.e. matrix). Rows represent the cycle of the
+  #   economic evaluation. Columns represent each markov state. Values represent
+  #   the proportion of the cohort occupying each state. 
   
-  ## Track Cohort
-  for (i in seq_along(1:nCycles)) {
+  # Set Blank Cohort Trace -------------------------------------------
+  n_cycles <- dim(Q)[[3]]
+  states <- unique(x = c(colnames(Q), rownames(Q)))
+  
+  cohort_trace <- array(data = 0, 
+                        dim = c(n_cycles, length(states)), 
+                        dimnames = list(Cycle = NULL, 
+                                        State = states))
+  # Set Membership for Cycle 0
+  cohort_init <- c(1, rep(0, 3))
+  names(cohort_init) <- states
+  
+  # Populate Cohort Trace
+  
+  for (i in seq_len(n_cycles)) {
     if (i == 1) {
-      trace[i,] <- Cohort0 %*% Q[,,j]
-    } else if (i == 2 && j == "Comb") {
-      trace[i,] <- trace[i-1,] %*% Q[,,j]
+      cohort_trace[i, ] <- cohort_init %*% Q[,,i]
     } else {
-      trace[i,] <- trace[i-1,] %*% Q[,,"Mono"]
+      cohort_trace[i, ] <- cohort_trace[i-1, ] %*% Q[,,i]
     }
   }
   
-  return(trace)
+  return(cohort_trace)
 }
 
 # Estimate Costs ###############################################################
-# j = Model Arm | Mono or Comb. 
-# trace = Markov Trace. 
-# RxPrice = Treatment prices for AZT and LAM. 
-# AnnualCosts = Health State Costs
 
-est_costs <- function(j, trace, RxPrice, AnnualCosts) {
+est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
+  # Estimate Costs by Health (Markov) State
+  #
+  # Args: 
+  #   j:  Character. The arm of the decision model. Accepted values include 
+  #     `"Mono"` or `"Comb"`. 
+  #   trace: Numeric. A matrix representing the cohort trace generated by the 
+  #     function `track_cohort`. 
+  #   RxPrice: Numeric. The annual treatment costs for AZT and LAM. Expects the 
+  #     `RxPrices` element from the parameter list. 
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
+  #     is assumed to receive combination therapy. Default = 2 (Base Case).
+  #   AnnualCosts: Numeric. A matrix of the annual direct medical and community
+  #     care costs for each markov state. Expects the `AnnualCost` element from 
+  #     the parameter list. 
+  #
+  # Returns: 
+  #   An array with 2 dimensions (i.e. a matrix). Rows represent the cycle 
+  #   (year) of the cohort simulation. Columns represent the markov state. 
+  #   Values represent the total costs for the corresponding value and health 
+  #   state. 
+  
   j <- match.arg(arg = j, choices = c("Mono", "Comb"))
-  # Calculate Annual Costs for each Markov State -------------------------------
-  M.Costs <- colSums(x = AnnualCosts, dims = 1)
-  # Calculate Total Cost for each State and Cycle ------------------------------
-  ## NOTE: AZT is given in every cycle for both arms. 
-  Cycle.Cost <- (M.Costs + RxPrice[["AZT"]])
-  Costs <- matrix(data = Cycle.Cost, 
-                    nrow = nrow(trace), 
-                    ncol = length(M.Costs), 
-                    byrow = TRUE, 
-                    dimnames = list(Cycle = NULL, 
-                                    State = names(M.Costs)))
+  
+  # Identify Alive States
+  alive_states <- which(x = colnames(trace) != "D")
+  
+  # Calculate Treatment Acquisition Cost ------------------------------------
+  tx_acq <- matrix(data = 0, nrow = nrow(trace), ncol = ncol(trace), 
+                   dimnames = dimnames(trace))
+  
+  
   if (j == "Comb") {
-    # LAM given in the first two cycles only
-    Costs[c(1,2),] <- Costs[c(1,2),] + RxPrice[["LAM"]]
+    # Identify Cycles Patient is on Combination Therapy
+    comb_id <- seq_len(comb_yrs)
+    # Assign Treatment Costs
+    tx_acq[comb_id, alive_states] <- sum(RxPrice)
+    tx_acq[-comb_id, alive_states] <- RxPrice[["AZT"]]
+  } else {
+    tx_acq[, alive_states] <- RxPrice[["AZT"]]
   }
+  tx_acq <- tx_acq * trace
+  # Calculate Treatment Monitoring Costs ------------------------------------
+  AnnualCosts <- colSums(x = AnnualCosts, na.rm = FALSE, dims = 1L)
+  AnnualCosts <- c(AnnualCosts, D = 0)
   
-  # Take Product of "Alive" states and Annual Costs
-  Costs <- trace[,c("A", "B", "C")] * Costs
+  tx_monit <- matrix(data = AnnualCosts, 
+                     nrow = nrow(trace), ncol = ncol(trace), 
+                     byrow = TRUE,
+                     dimnames = dimnames(trace))
+  tx_monit <- tx_monit * trace
   
-  return(Costs)
+  # Combine Acquisition and Monitoring Costs
+  total_costs <- tx_acq + tx_monit
+  
+  return(total_costs)
 }
 
 # Run Model ####################################################################
@@ -105,30 +167,38 @@ est_costs <- function(j, trace, RxPrice, AnnualCosts) {
 
 runModel <- function(j, 
                      ParamList, 
-                     nCycles = 20, 
+                     comb_yrs = 2,
+                     n_cycles = 20, 
                      oDR = 0, 
                      cDR = 0.06){
   ## 1) Define Transition Matrix -----------------------------------------------
-  Q <- define_tmat(Q = ParamList$StateCount, RR = ParamList$RR)
+  Q <- define_tmat(j = j, 
+                   Q_mono = ParamList$StateCount, 
+                   RR = ParamList$RR, 
+                   comb_yrs = comb_yrs, 
+                   n_cycles = n_cycles)
   ## 2) Track Cohort -----------------------------------------------------------
-  cohort <- track_cohort(j = j, Q = Q, nCycles = nCycles)
+  cohort <- track_cohort(Q = Q)
   ## 3) Calculate LYs ----------------------------------------------------------
-  LYs <- rowSums(x = cohort[,c("A", "B", "C")], dims = 1)
+  LYs <- rowSums(x = cohort[, c("A", "B", "C")], na.rm = FALSE, dims = 1L)
+  
   ## 4) Estimate Costs ---------------------------------------------------------
   Costs <- est_costs(j = j, 
-                     trace = cohort, 
-                     RxPrice = ParamList$RxPrices, 
-                     AnnualCosts = ParamList$AnnualCost)
-  Costs <- rowSums(x = Costs, dims = 1) # Sum Costs for each cycle. 
+                    trace = cohort, 
+                    RxPrice = ParamList$RxPrices, 
+                    comb_yrs = comb_yrs, 
+                    AnnualCosts = ParamList$AnnualCost)
+  # Sum Costs for each cycle
+  Costs <- rowSums(x = Costs, na.rm = FALSE, dims = 1L)
   
   ## 5) Discount LYs and Costs -------------------------------------------------
-  LYs <- LYs/((1+oDR)^(1:nCycles))
-  Costs <- Costs/((1+cDR)^(1:nCycles))
+  LYs <- LYs/((1+oDR)^(1:n_cycles))
+  Costs <- Costs/((1+cDR)^(1:n_cycles))
   
   ## 6) Combine Costs and Effects ----------------------------------------------
   Result <- cbind(Costs, LYs)
   ## 7) Sum Totals -------------------------------------------------------------
-  Result <- colSums(x = Result, dims = 1)
+  Result <- colSums(x = Result, na.rm = FALSE, dims = 1L)
   
   return(Result)
 }
