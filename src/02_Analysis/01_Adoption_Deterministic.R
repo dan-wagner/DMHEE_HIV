@@ -3,8 +3,7 @@
 #   Data Source: Deterministic
 
 # Load Functions ===============================================================
-source(file.path("src", "FUNS", "tbls.R"))
-
+library(HEEToolkit)
 
 # Load Data ====================================================================
 simResult <- readr::read_rds(file = file.path("data", 
@@ -16,10 +15,10 @@ dimnames(simResult)$j <- c("zidovudine", "zidovudine + lamivudine")
 
 # Adoption Table ===============================================================
 deter_tbl <- 
-  adopt_tbl(x = simResult, 
+  adopt_tbl(data = simResult, 
             effect_measure = "LYs", 
             lambda = 20000, 
-            nbType = "NMB", 
+            nb_type = "NMB", 
             currency = "GBP")
 
 # Write to Disk
@@ -29,4 +28,19 @@ gt::gtsave(data = displayTBL,
 
 # Figures ======================================================================
 ## i) Cost-Effectiveness Plane -------------------------------------------------
-## ii) CEAC --------------------------------------------------------------------
+FigData <- ceplane_data(data = simResult,
+                        effect_measure = "LYs",
+                        lambda = 20000,
+                        currency = "CAD")
+
+HIV_CEPlane <- 
+  viz_ceplane(x = FigData, 
+              show_uncertainty = FALSE,
+              show_lambda = TRUE,
+              decision_rule = list(show = FALSE, id = NULL))
+
+ggplot2::ggsave(filename = file.path("results", "CE-Plane_Deter.png"), 
+                plot = HIV_CEPlane, 
+                device = "png", 
+                width = 5.73, 
+                height = 4.68)
