@@ -22,7 +22,7 @@ deter_tbl <-
             currency = "GBP")
 
 # Write to Disk
-gt::gtsave(data = displayTBL, 
+gt::gtsave(data = deter_tbl, 
            filename = "adopt-tbl_deterministic.html", 
            path = file.path("results"))
 

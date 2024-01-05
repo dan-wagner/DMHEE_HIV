@@ -23,7 +23,7 @@ adoptionTBL <-
 
 # Write to Disk
 gt::gtsave(data = adoptionTBL, 
-           filename = "adopt-tbl_MC-Sim.pdf", 
+           filename = "adopt-tbl_MC-Sim.html", 
            path = file.path("results"))
 
 # Figures ======================================================================
