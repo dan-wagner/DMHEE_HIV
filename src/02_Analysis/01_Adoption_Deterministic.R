@@ -37,10 +37,12 @@ HIV_CEPlane <-
   viz_ceplane(x = FigData, 
               show_uncertainty = FALSE,
               show_lambda = TRUE,
-              decision_rule = list(show = FALSE, id = NULL))
+              decision_rule = list(show = FALSE, id = NULL)) + 
+  ggplot2::theme(panel.background = ggplot2::element_rect(fill = "white"), 
+                 plot.background = ggplot2::element_rect(fill = "white"))
 
 ggplot2::ggsave(filename = file.path("results", "CE-Plane_Deter.png"), 
                 plot = HIV_CEPlane, 
                 device = "png", 
-                width = 5.73, 
-                height = 4.68)
+                width = 6.25, 
+                height = 5.50)
