@@ -124,15 +124,12 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
   #   state. 
   
   j <- match.arg(arg = j, choices = c("Mono", "Comb"))
-  
   # Identify Alive States
   alive_states <- which(x = colnames(trace) != "D")
   
   # Calculate Treatment Acquisition Cost ------------------------------------
   tx_acq <- matrix(data = 0, nrow = nrow(trace), ncol = ncol(trace), 
                    dimnames = dimnames(trace))
-  
-  
   if (j == "Comb") {
     # Identify Cycles Patient is on Combination Therapy
     comb_id <- seq_len(comb_yrs)
@@ -142,7 +139,7 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
   } else {
     tx_acq[, alive_states] <- RxPrice[["AZT"]]
   }
-  tx_acq <- tx_acq * trace
+  
   # Calculate Treatment Monitoring Costs ------------------------------------
   AnnualCosts <- colSums(x = AnnualCosts, na.rm = FALSE, dims = 1L)
   AnnualCosts <- c(AnnualCosts, D = 0)
@@ -151,10 +148,11 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
                      nrow = nrow(trace), ncol = ncol(trace), 
                      byrow = TRUE,
                      dimnames = dimnames(trace))
-  tx_monit <- tx_monit * trace
   
   # Combine Acquisition and Monitoring Costs
   total_costs <- tx_acq + tx_monit
+  # Adjust Costs for State Membership
+  total_costs <- total_costs * trace
   
   return(total_costs)
 }
