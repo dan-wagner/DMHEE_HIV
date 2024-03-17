@@ -158,17 +158,38 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
 }
 
 # Run Model ####################################################################
-## - Model can be broken down into three components: 
-##    i) Track Cohort through Markov Structure. 
-##    ii) Estimate Life Years
-##    iii) Estimated Costs. 
-
 runModel <- function(j, 
                      ParamList, 
                      comb_yrs = 2,
                      n_cycles = 20, 
                      oDR = 0, 
                      cDR = 0.06){
+  # Estimate Costs and Benefits from a Single Alternative
+  #
+  # Args:
+  #   j: Character. The arm of the decision model. Accepted values include 
+  #     `"Mono"` or `"Comb"`. 
+  #   ParamList: List. The list of sampled parameter values. Expects the 
+  #      output from the function DrawParams(). 
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
+  #     is assumed to receive combination therapy. Default = 2 (Base Case).
+  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years) 
+  #     in the cohort simulation. Default = 20 (Base Case).
+  #   oDR: Numeric (Default = 0). The discount rate to apply to outcomes. 
+  #   cDR: Numeric (Default = 0.06). The annual discount rate to apply to costs.
+  #
+  # Details:
+  #   The model can be broken down into four distinct tasks. 
+  #   1) Define the transition matrix with treatment specific probabilities.
+  #   2) Track the cohort through the Model structure over the specified 
+  #      time horizon. 
+  #   3) Estimate benefits. 
+  #   4) Estimate Costs
+  #
+  # Returns
+  #   A named numeric vector of length two. Names include (Costs and LYs).
+  
+  
   ## 1) Define Transition Matrix -----------------------------------------------
   Q <- define_tmat(j = j, 
                    Q_mono = ParamList$StateCount, 
