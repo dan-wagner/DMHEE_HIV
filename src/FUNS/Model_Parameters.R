@@ -1,9 +1,13 @@
-getParams <- function(FileName = "HIV-Params.rds") {
+getParams <- function(FileName = "HIV-Params.rds", child_dir = FALSE) {
   # Get Model Parameters
   #
   # Args: 
   #   FileName: The name to give to the parameter file. Default is 
   #   "HIV-Params.rds"
+  #   child_dir: Logical (Default: FALSE). Controls whether the current working
+  #     directory is the same as the project root (FALSE) or in a child 
+  #     directory of that location (TRUE). 
+  #       - Needed for quarto reporting. 
   #
   # Returns: 
   # A list with four named elements: 
@@ -16,14 +20,23 @@ getParams <- function(FileName = "HIV-Params.rds") {
   #   model.
   
   # Set Path to Output File
-  param_path <- file.path("data", "data-gen", "Model-Params", FileName)
+  if (isTRUE(child_dir)) {
+    param_path <- file.path("..", "data", "data-gen", "Model-Params", FileName)
+  } else {
+    param_path <- file.path("data", "data-gen", "Model-Params", FileName)
+  }
   # Check if File exists
   params_exist <- file.exists(param_path)
   
   if (isFALSE(params_exist)) {
     usethis::ui_info("Model Parameters have not been generated!")
     # Check if sub-directory exists
-    param_dir <- file.path("data", "data-gen", "Model-Params")
+    if (isTRUE(child_dir)) {
+      param_dir <- file.path("..", "data", "data-gen", "Model-Params")
+    } else {
+      param_dir <- file.path("data", "data-gen", "Model-Params")
+    }
+    
     dir_present <- dir.exists(paths = param_dir)
     
     if (isFALSE(params_dir)) {
