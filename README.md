@@ -102,8 +102,6 @@ performing a cost-effectiveness analysis. While code to achieve this is included
 in the analysis scripts, the underlying package is not publicly available 
 at this time. 
 
-##  Simulate Data for Competing Alternatives
-
 # Documentation
 
 * [Progress](docs/01_Progress.md)
