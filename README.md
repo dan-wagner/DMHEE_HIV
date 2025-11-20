@@ -54,7 +54,7 @@ Now run the model for each arm of interest. The names of the competing
 strategies are known as `"Mono"` and `"Comb"`. 
 
 ```
-runModel(
+run_arm(
   j = "Mono", 
   ParamList = param_i, 
   comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
@@ -63,7 +63,7 @@ runModel(
   cDR = 0.06     # Discount rate to apply to costs. 
 )
 
-runModel(
+run_arm(
   j = "Comb", 
   ParamList = param_i, 
   comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
@@ -73,11 +73,11 @@ runModel(
 )
 ```
 
-Notice above that the two calls to `runModel()` are identical, with the 
+Notice above that the two calls to `run_arm()` are identical, with the 
 exception of the value passed to the argument `j`. A better approach would be
 to apply the "Don't Repeat Yourself" principle. 
 
-The code below evaluates the `runModel()` function once for each element passed
+The code below evaluates the `run_arm()` function once for each element passed
 to the input `X`. By replacing two blocks of code for one, it makes it easy for
 us to keep track of how the results were generated. This may seem trivial here, 
 since there are only two arms in the model. However, some models will require
@@ -88,7 +88,7 @@ conditions.
 ```
 sapply(
   X = c("Mono" = "Mono", "Comb" = "Comb"), 
-  FUN = runModel, 
+  FUN = run_arm, 
   ParamList = param_i,
   comb_yrs = 2, 
   n_cycles = 20, 

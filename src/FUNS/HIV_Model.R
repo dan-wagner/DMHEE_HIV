@@ -158,7 +158,7 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
 }
 
 # Run Model ####################################################################
-runModel <- function(j, 
+run_arm <- function(j, 
                      ParamList, 
                      comb_yrs = 2,
                      n_cycles = 20, 

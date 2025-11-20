@@ -50,7 +50,7 @@ Organized into three separate call stacks.
     - Function Name: `DrawParams()`
     - Description: This function is designed to support deterministic or probabilistic analyses. If deterministic, mean values are returned for each parameter. If probabilistic, a value is drawn for each assigned distribution.
   * :white_check_mark: Function to generate output from the decision model.
-    - Function Name: `runModel()`. 
+    - Function Name: `run_arm()`. 
     - Description: Responsible for estimating the costs and effects in each arm of the specified decision model. Note that the function only calculates output for a single arm. This was a deliberate design choice to reduce/eliminate code duplication. Assessment of multiple arms (ie. `"Mono"` and `"Comb"`) should be achieved using functional programming techniques.
     
 # Simulations

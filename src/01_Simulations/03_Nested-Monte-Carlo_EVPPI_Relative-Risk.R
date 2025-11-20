@@ -28,7 +28,7 @@ nmc_out <-
                 # Run Model
                 result_i <- 
                   sapply(X = list(Mono = "Mono", Comb = "Comb"), 
-                         FUN = runModel, 
+                         FUN = run_arm, 
                          ParamList = PSI_i, 
                          nCycles = 20, 
                          oDR = 0, 

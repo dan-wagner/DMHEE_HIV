@@ -11,7 +11,7 @@ Param_i <- DrawParams(ParamList = HIV_Params, prob = FALSE)
 
 HIV_result <- 
   sapply(X = list(Mono = "Mono", Comb = "Comb"), 
-         FUN = runModel, 
+         FUN = run_arm, 
          ParamList = Param_i,
          comb_yrs = 2,
          n_cycles = 20, 
