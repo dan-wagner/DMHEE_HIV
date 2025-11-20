@@ -23,7 +23,7 @@ deterministic or probabilistic simulation.
 **STATUS**: :white_check_mark:
 
   * :white_check_mark: Define Function to load parameters from raw data
-    - Function: `getParams()`
+    - Function: `get_params()`
   * :white_check_mark: Monotherapy Transitions
     - Add state transitions table for monotherapy to `data/data-raw`.
       - File: `data/data-raw/StateTranstions_Count_Mono.rds`
@@ -35,7 +35,7 @@ deterministic or probabilistic simulation.
       - File: `data/data-raw/HIV_Annual-Costs.rds`
     - Add treatment costs. 
       - AZT: 2278 GBP, LAM: 2087 GBP.
-      - Defined in body of `getParams()`.
+      - Defined in body of `get_params()`.
       
 ## Develop Model Code
 **STATUS**: :white_check_mark: 
@@ -43,7 +43,7 @@ Organized into three separate call stacks.
 
   * :white_check_mark: Function to generate simulation-ready model parameters
   from raw data.
-    - Function Name: `getParams()`. 
+    - Function Name: `get_params()`. 
     - Description: Looks in the `data/data-gen/Model-Params` sub-directory for a data set. If the directory is empty, the function will re-generate teh parameters from teh raw data and save it there. In this situation, it will also return a message stating the relative file path for the generated parameter data set. 
   * :white_check_mark: Function to draw parameter values from the assigned
   distributions. 

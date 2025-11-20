@@ -1,4 +1,4 @@
-getParams <- function(FileName = "HIV-Params.rds", child_dir = FALSE) {
+get_params <- function(FileName = "HIV-Params.rds", child_dir = FALSE) {
   # Get Model Parameters
   #
   # Args: 

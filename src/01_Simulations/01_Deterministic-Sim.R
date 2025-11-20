@@ -4,7 +4,7 @@ source(file.path("src", "FUNS", "HIV_Model.R"))
 source(file.path("src", "FUNS", "Model_Parameters.R"))
 
 # Get Model Parameters =========================================================
-HIV_Params <- getParams()
+HIV_Params <- get_params()
 
 # Estimate Costs and Effects ===================================================
 Param_i <- DrawParams(ParamList = HIV_Params, prob = FALSE)

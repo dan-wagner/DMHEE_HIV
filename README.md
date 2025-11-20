@@ -34,7 +34,7 @@ source(file.path("src", "FUNS", "HIV_Model.R"))
 
 Next, load the input parameters to the global environment. 
 ```
-params <- getParams()
+params <- get_params()
 ```
 
 Once loaded, sample the input parameters deterministically or using the 

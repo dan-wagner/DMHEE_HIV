@@ -6,7 +6,7 @@ library(foreach)
 library(doParallel)
 
 # Get Model Parameters =========================================================
-HIV_Params <- getParams()
+HIV_Params <- get_params()
 
 # Run Simulation ===============================================================
 PHI <- "AnnualCost"
