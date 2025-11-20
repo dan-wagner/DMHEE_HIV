@@ -14,6 +14,96 @@ previously identified strategies for reproducibility were used to achieve a
 level of reproducibility that would allow for the reliable re-generation of 
 results, including intermediate data sets. 
 
+# Installation
+Clone the repository to access the material and explore it interactively!
+The model itself can be run without any external dependencies. 
+
+# Quickstart
+##  Basic Workflow
+This section summarizes the basic workflow to load the model code and input
+data, and then evaluate the model to simulate the costs and effects for the 
+competing alternatives. 
+
+Begin by loading the relevant functions to the active R session. 
+```
+# Load Functions to access/sample the model input paramters
+source(file.path("src", "FUNS", "Model_Parameters.R"))
+# Load Functions which specify the model itself
+source(file.path("src", "FUNS", "HIV_Model.R"))
+```
+
+Next, load the input parameters to the global environment. 
+```
+params <- getParams()
+```
+
+Once loaded, sample the input parameters deterministically or using the 
+assigned distributions. You will notice that the output of `param_i` is 
+similar to, but distinct from the list in `params`. This is by design. 
+  - `params` is meant to store all of the information needed to sample the 
+  values in the list deterministically or probabilistically. 
+  - `param_i` is meant to store the sampled values needed to compute the 
+  relevant intermediate outputs in the model itself. 
+
+```
+param_i <- DrawParams(ParamList = params, prob = FALSE)
+# To use randomly sampled values, switch the value of prob to `TRUE`.  
+```
+
+Now run the model for each arm of interest. The names of the competing 
+strategies are known as `"Mono"` and `"Comb"`. 
+
+```
+runModel(
+  j = "Mono", 
+  ParamList = param_i, 
+  comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
+  n_cycles = 20, # The number of cycles to use. 
+  oDR = 0,       # Discount rate to apply to outcomes. 
+  cDR = 0.06     # Discount rate to apply to costs. 
+)
+
+runModel(
+  j = "Comb", 
+  ParamList = param_i, 
+  comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
+  n_cycles = 20, # The number of cycles to use. 
+  oDR = 0,       # Discount rate to apply to outcomes. 
+  cDR = 0.06     # Discount rate to apply to costs. 
+)
+```
+
+Notice above that the two calls to `runModel()` are identical, with the 
+exception of the value passed to the argument `j`. A better approach would be
+to apply the "Don't Repeat Yourself" principle. 
+
+The code below evaluates the `runModel()` function once for each element passed
+to the input `X`. By replacing two blocks of code for one, it makes it easy for
+us to keep track of how the results were generated. This may seem trivial here, 
+since there are only two arms in the model. However, some models will require
+a much larger set of alternatives to compare. Furthermore, the code below allows
+provides confidence that the results for each arm were generated under the same
+conditions. 
+
+```
+sapply(
+  X = c("Mono" = "Mono", "Comb" = "Comb"), 
+  FUN = runModel, 
+  ParamList = param_i,
+  comb_yrs = 2, 
+  n_cycles = 20, 
+  oDR = 0, 
+  cDR = 0.06
+)
+```
+
+Once the simulation is complete, the workflow would need to proceed by 
+performing a cost-effectiveness analysis. While code to achieve this is included
+in the analysis scripts, the underlying package is not publicly available 
+at this time. 
+
+##  Simulate Data for Competing Alternatives
+
 # Documentation
 
 * [Progress](docs/01_Progress.md)
@@ -67,23 +157,6 @@ PROJECT-DIRECTORY
   which perform the relevant steps to produce a specific result. In other words, 
   these scripts accept simulation output as input and return a result (i.e. 
   tabular or graphical) which will be stored in the `results` directory.  
-
-# Notes
-  * :information_source: Added function to plot Cost-Effectiveness plane.
-    - Potential to limit code duplication. Instead uses features of input data 
-    to determine how to plot the plane. Right now, that's limited to whether the 
-    input data reflects output from deterministic or stochastic model 
-    evaluation.
-    - Future updates will also include features to accommodate more than two 
-    alternatives, and multiple sub-groups. 
-    - Plan will be to add this function to my `HEEToolkit` package. 
-  * :information_source: Added function to plot Cost-Effectiveness 
-  Acceptability Curve. 
-    - CEACs are a requirement across projects. Opportunity to eliminate code 
-    duplication. 
-    - Future updates will accommodate data which contain costs/effects for 
-    multiple sub-groups. 
-    - Plan will be to add this function to my `HEEToolkit` package.
 
 [^1]: Briggs AH, Claxton K, Sculpher MJ. Decision modelling for health economic evaluation. Oxford: Oxford University Press; 2006. 237 p. (Briggs A, Gray A, editors. Oxford handbooks in health economic evaluation.)    
 [^2]: Chancellor JV, Hill AM, Sabin CA, Simpson KN, Youle M. Modelling the Cost Effectiveness of Lamivudine/Zidovudine Combination Therapy in HIV Infection. Pharmacoeconomics. 1997 Jul 1;12(1):54–66.
