@@ -221,3 +221,58 @@ run_arm <- function(j,
   
   return(Result)
 }
+
+simulate_model <- function(arms = c("Mono", "Comb"), 
+                           params, 
+                           prob = FALSE, 
+                           n = 1000,
+                           comb_yrs = 2, 
+                           n_cycles = 20, 
+                           oDR = 0, 
+                           cDR = 0.06) {
+  # Simulates the Costs/Benefits for each arm of the model. 
+  #
+  # Args:
+  #   arms: Character. A vector of the unique names of each arm of the model. 
+  #   params: List. The parameter list to be sampled in the simulation. 
+  #   prob: Logical. Controls the approach used to sample the model parameters. 
+  #     Can be deterministic (`FALSE`) or random (`TRUE`). 
+  #   n: Numeric. The number of random draws to perform. Only needed when
+  #     `prob` is set to `TRUE`. 
+  #   comb_yrs, n_cycles, oDR, cDR: See documentation for `run_arm`. 
+  #
+  # Set names to model arms
+  names(arms) <- arms
+  # Configure Simulation Settings
+  if (isFALSE(prob)) {
+    n <- 1
+  }
+  
+  sim_data <- 
+    replicate(
+      n = n, 
+      expr = {
+        param_i <- DrawParams(ParamList = params, prob = prob)
+        
+        sapply(
+          X = arms, 
+          FUN = run_arm,
+          ParamList = param_i,
+          comb_yrs = comb_yrs, 
+          n_cycles = n_cycles, 
+          oDR = oDR, 
+          cDR = cDR, 
+          simplify = "array"
+        )
+      }, 
+      simplify = "array"
+    )
+  names(dimnames(sim_data)) <- c("Result", "j", "i")
+  if (isFALSE(prob)) {
+    sim_data <- t(sim_data[,,1])
+  } else {
+    sim_data <- aperm(a = sim_data, perm = c("i", "Result", "j"))
+  }
+  
+  return(sim_data)
+}
