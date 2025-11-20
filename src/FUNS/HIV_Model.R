@@ -170,7 +170,7 @@ run_arm <- function(j,
   #   j: Character. The arm of the decision model. Accepted values include 
   #     `"Mono"` or `"Comb"`. 
   #   ParamList: List. The list of sampled parameter values. Expects the 
-  #      output from the function DrawParams(). 
+  #      output from the function draw_params(). 
   #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
   #     is assumed to receive combination therapy. Default = 2 (Base Case).
   #   n_cycles: Numeric (integer). Refers to the total number of cycles (years) 
@@ -252,7 +252,7 @@ simulate_model <- function(arms = c("Mono", "Comb"),
     replicate(
       n = n, 
       expr = {
-        param_i <- DrawParams(ParamList = params, prob = prob)
+        param_i <- draw_params(ParamList = params, prob = prob)
         
         sapply(
           X = arms, 

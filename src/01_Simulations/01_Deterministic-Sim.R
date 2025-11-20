@@ -7,7 +7,7 @@ source(file.path("src", "FUNS", "Model_Parameters.R"))
 HIV_Params <- get_params()
 
 # Estimate Costs and Effects ===================================================
-Param_i <- DrawParams(ParamList = HIV_Params, prob = FALSE)
+Param_i <- draw_params(ParamList = HIV_Params, prob = FALSE)
 
 HIV_result <- 
   sapply(X = list(Mono = "Mono", Comb = "Comb"), 

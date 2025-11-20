@@ -46,7 +46,7 @@ similar to, but distinct from the list in `params`. This is by design.
   relevant intermediate outputs in the model itself. 
 
 ```
-param_i <- DrawParams(ParamList = params, prob = FALSE)
+param_i <- draw_params(ParamList = params, prob = FALSE)
 # To use randomly sampled values, switch the value of prob to `TRUE`.  
 ```
 

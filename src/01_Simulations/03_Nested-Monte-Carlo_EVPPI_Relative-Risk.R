@@ -17,12 +17,12 @@ sim_start <- Sys.time()
 nmc_out <- 
   foreach(n = 1:1000, .final = simplify2array) %dopar% {
     # Draw Outer Loop Parameter
-    PHI_i <- DrawParams(ParamList = HIV_Params, prob = 1)[PHI]
+    PHI_i <- draw_params(ParamList = HIV_Params, prob = 1)[PHI]
     # Initiate Inner Loop
     replicate(n = 1000, 
               expr = {
                 # Draw Inner Loop Parameters (PSI)
-                PSI_i <- DrawParams(ParamList = HIV_Params, prob = 1)
+                PSI_i <- draw_params(ParamList = HIV_Params, prob = 1)
                 # Fix the value of PHI to the correct element of PSI
                 PSI_i[PHI] <- PHI_i
                 # Run Model

@@ -10,7 +10,7 @@ HIV_Params <- get_params()
 HIV_result <- 
 replicate(n = 5000, 
           expr = {
-            Param_i <- DrawParams(ParamList = HIV_Params, prob = TRUE)
+            Param_i <- draw_params(ParamList = HIV_Params, prob = TRUE)
             Result_i <- 
               sapply(X = list(Mono = "Mono", Comb = "Comb"), 
                      FUN = run_arm, 

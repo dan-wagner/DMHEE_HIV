@@ -47,7 +47,7 @@ Organized into three separate call stacks.
     - Description: Looks in the `data/data-gen/Model-Params` sub-directory for a data set. If the directory is empty, the function will re-generate teh parameters from teh raw data and save it there. In this situation, it will also return a message stating the relative file path for the generated parameter data set. 
   * :white_check_mark: Function to draw parameter values from the assigned
   distributions. 
-    - Function Name: `DrawParams()`
+    - Function Name: `draw_params()`
     - Description: This function is designed to support deterministic or probabilistic analyses. If deterministic, mean values are returned for each parameter. If probabilistic, a value is drawn for each assigned distribution.
   * :white_check_mark: Function to generate output from the decision model.
     - Function Name: `run_arm()`. 
