@@ -62,7 +62,7 @@ define_tmat <- function(j, Q_mono, RR, comb_yrs = 2, n_cycles = 20) {
 }
 
 # TRACK COHORT #################################################################
-track_cohort <- function(Q){
+track_state <- function(Q){
   # Generate the Cohort Trace for the Economic Model
   #
   # Args: 
@@ -197,7 +197,7 @@ runModel <- function(j,
                    comb_yrs = comb_yrs, 
                    n_cycles = n_cycles)
   ## 2) Track Cohort -----------------------------------------------------------
-  cohort <- track_cohort(Q = Q)
+  cohort <- track_state(Q = Q)
   ## 3) Calculate LYs ----------------------------------------------------------
   LYs <- rowSums(x = cohort[, c("A", "B", "C")], na.rm = FALSE, dims = 1L)
   
