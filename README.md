@@ -37,59 +37,32 @@ Next, load the input parameters to the global environment.
 params <- get_params()
 ```
 
-Once loaded, sample the input parameters deterministically or using the 
-assigned distributions. You will notice that the output of `param_i` is 
-similar to, but distinct from the list in `params`. This is by design. 
-  - `params` is meant to store all of the information needed to sample the 
-  values in the list deterministically or probabilistically. 
-  - `param_i` is meant to store the sampled values needed to compute the 
-  relevant intermediate outputs in the model itself. 
+With the input parameters available, use the `simulate_model()` function to 
+obtain the simulated costs and benefits. In this function, the `arms` argument
+is used to specify the competing alternatives that will be considered in the 
+analysis. To perform a probabilistic simulation, set the `prob` argument to 
+`TRUE`. This will generate distributions of cost and LYs, the size of which is
+determined by the `n` parameter. For a deterministic simulation, simply set
+the `prob` argument to `FALSE` (the `n` parameter is ignored).  
 
 ```
-param_i <- draw_params(ParamList = params, prob = FALSE)
-# To use randomly sampled values, switch the value of prob to `TRUE`.  
-```
-
-Now run the model for each arm of interest. The names of the competing 
-strategies are known as `"Mono"` and `"Comb"`. 
-
-```
-run_arm(
-  j = "Mono", 
-  ParamList = param_i, 
-  comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
-  n_cycles = 20, # The number of cycles to use. 
-  oDR = 0,       # Discount rate to apply to outcomes. 
-  cDR = 0.06     # Discount rate to apply to costs. 
+# Deterministic Simulation
+simulate_model(
+  j = c("Mono", "Comb"), 
+  params = params,
+  prob = FALSE, 
+  n = 1000,
+  comb_yrs = 2, 
+  n_cycles = 20, 
+  oDR = 0, 
+  cDR = 0.06
 )
-
-run_arm(
-  j = "Comb", 
-  ParamList = param_i, 
-  comb_yrs = 2,  # Assumption relating to the duration of combination therapy. 
-  n_cycles = 20, # The number of cycles to use. 
-  oDR = 0,       # Discount rate to apply to outcomes. 
-  cDR = 0.06     # Discount rate to apply to costs. 
-)
-```
-
-Notice above that the two calls to `run_arm()` are identical, with the 
-exception of the value passed to the argument `j`. A better approach would be
-to apply the "Don't Repeat Yourself" principle. 
-
-The code below evaluates the `run_arm()` function once for each element passed
-to the input `X`. By replacing two blocks of code for one, it makes it easy for
-us to keep track of how the results were generated. This may seem trivial here, 
-since there are only two arms in the model. However, some models will require
-a much larger set of alternatives to compare. Furthermore, the code below allows
-provides confidence that the results for each arm were generated under the same
-conditions. 
-
-```
-sapply(
-  X = c("Mono" = "Mono", "Comb" = "Comb"), 
-  FUN = run_arm, 
-  ParamList = param_i,
+# Monte Carlo Simulation
+simulate_model(
+  j = c("Mono", "Comb"), 
+  params = params,
+  prob = TRUE, 
+  n = 1000,
   comb_yrs = 2, 
   n_cycles = 20, 
   oDR = 0, 
@@ -101,6 +74,10 @@ Once the simulation is complete, the workflow would need to proceed by
 performing a cost-effectiveness analysis. While code to achieve this is included
 in the analysis scripts, the underlying package is not publicly available 
 at this time. 
+
+Feel free to inspect the design of the functions to see how everything works. 
+Documentation summarizing the design of the code may be included at a later 
+date. 
 
 # Documentation
 
