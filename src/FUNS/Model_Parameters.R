@@ -87,7 +87,7 @@ MoM_Costs <- function(Mean, SE){
 }
 
 ## Perform Single Mone Carlo draw of each model parameter ----------------------
-draw_param <- function(ParamList, prob = FALSE) {
+draw_params <- function(ParamList, prob = FALSE) {
   # Draw Deterministic or Random Values for Simulation
   #
   # Args:
