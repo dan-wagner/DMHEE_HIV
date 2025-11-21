@@ -11,36 +11,48 @@
 #  - Cycle Length is 1 year. 
 
 # DEFINE TRANSITION MATRIX #####################################################
-define_tmat <- function(j, Q_mono, RR, comb_yrs = 2, n_cycles = 20) {
+define_tmat <- function(j,
+                        Q_mono,
+                        RR,
+                        comb_yrs = 2,
+                        n_cycles = 20) {
   # Define Transition Matrix for each comparator
   #
   # Args:
-  #   j: Character. The arm of the decision model. Accepted values include 
-  #     `"Mono"` or `"Comb"`. 
-  #   Q_mono: A matrix of the probability of transitioning between states for 
+  #   j: Character. The arm of the decision model. Accepted values include
+  #     `"Mono"` or `"Comb"`.
+  #   Q_mono: A matrix of the probability of transitioning between states for
   #     the Monotherapy arm of the model. Expects the `StateCount` element from
   #     the parameter list.
   #   RR: The relative risk of severe disease from combination therapy.
-  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
-  #     is assumed to receive combination therapy. Default = 2 (Base Case). 
-  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years) 
-  #     in the cohort simulation. Default = 20 (Base Case). 
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient
+  #     is assumed to receive combination therapy. Default = 2 (Base Case).
+  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years)
+  #     in the cohort simulation. Default = 20 (Base Case).
   #
-  # Returns: 
+  # Returns:
   #   A 3-D Array representing the transition matrices for each alternative.
   #   Rows represent the start state, columns represent the end state, and
-  #   matrices represent each cycle of the economic model. 
+  #   matrices represent each cycle of the economic model.
   
   # Validate Inputs
-  match.arg(arg = j, choices = c("Mono", "Comb"), several.ok = FALSE)
+  match.arg(
+    arg = j,
+    choices = c("Mono", "Comb"),
+    several.ok = FALSE
+  )
   stopifnot(comb_yrs <= n_cycles)
   
   # Build Blank Output Array
-  Q <- array(data = 0, 
-             dim = c(nrow(Q_mono), ncol(Q_mono), n_cycles), 
-             dimnames = list(From = rownames(Q_mono), 
-                             To = colnames(Q_mono), 
-                             Cycle = NULL))
+  Q <- array(
+    data = 0,
+    dim = c(nrow(Q_mono), ncol(Q_mono), n_cycles),
+    dimnames = list(
+      From = rownames(Q_mono),
+      To = colnames(Q_mono),
+      Cycle = NULL
+    )
+  )
   
   
   # Define Transition Probabilities
@@ -62,26 +74,27 @@ define_tmat <- function(j, Q_mono, RR, comb_yrs = 2, n_cycles = 20) {
 }
 
 # TRACK COHORT #################################################################
-track_state <- function(Q){
+track_state <- function(Q) {
   # Generate the Cohort Trace for the Economic Model
   #
-  # Args: 
-  #   Q: Numeric. A 3-Dimensional array representing the time-dependent 
-  #   transition probabilities for the specific arm of the decision model. 
+  # Args:
+  #   Q: Numeric. A 3-Dimensional array representing the time-dependent
+  #   transition probabilities for the specific arm of the decision model.
   #
-  # Returns: 
+  # Returns:
   #   An array with 2 dimensions (i.e. matrix). Rows represent the cycle of the
   #   economic evaluation. Columns represent each markov state. Values represent
-  #   the proportion of the cohort occupying each state. 
+  #   the proportion of the cohort occupying each state.
   
   # Set Blank Cohort Trace -------------------------------------------
   n_cycles <- dim(Q)[[3]]
   states <- unique(x = c(colnames(Q), rownames(Q)))
   
-  cohort_trace <- array(data = 0, 
-                        dim = c(n_cycles, length(states)), 
-                        dimnames = list(Cycle = NULL, 
-                                        State = states))
+  cohort_trace <- array(
+    data = 0,
+    dim = c(n_cycles, length(states)),
+    dimnames = list(Cycle = NULL, State = states)
+  )
   # Set Membership for Cycle 0
   cohort_init <- c(1, rep(0, 3))
   names(cohort_init) <- states
@@ -90,13 +103,64 @@ track_state <- function(Q){
   
   for (i in seq_len(n_cycles)) {
     if (i == 1) {
-      cohort_trace[i, ] <- cohort_init %*% Q[,,i]
+      cohort_trace[i, ] <- cohort_init %*% Q[, , i]
     } else {
-      cohort_trace[i, ] <- cohort_trace[i-1, ] %*% Q[,,i]
+      cohort_trace[i, ] <- cohort_trace[i - 1, ] %*% Q[, , i]
     }
   }
   
   return(cohort_trace)
+}
+
+track_state2 <- function(Q, micro = FALSE) {
+  # Track State Occupancy for cohort or single patient
+  #
+  # Args
+  #   Q: As above.
+  #   micro: Logical (Default: FALSE). Controls whether estimates evaluated for
+  #     a cohort of patients (`FALSE`) or a single patient (`TRUE`).
+  #
+  # Returns:
+  #   As above.
+  
+  # Extract meta data about transitions.
+  n_cycles <- dim(Q)[[3]]
+  model_states <- unique(x = c(rownames(Q), colnames(Q)))
+  # Set Initial State
+  init <- c(1, rep(0, length(model_states) - 1))
+  names(init) <- model_states
+  # Initialize Blank output array
+  state_mem <-
+    array(
+      data = 0,
+      dim = c(n_cycles, length(model_states)),
+      dimnames = list(Cycle = NULL, state = model_states)
+    )
+  
+  # Track State Occupancy
+  for (i in seq_len(length.out = n_cycles)) {
+    if (isTRUE(micro)) {
+      if (i == 1) {
+        init_state <- names(init)[which(x = init == 1)]
+        current_wt <- Q[init_state, , i]
+      } else {
+        current_wt <- Q[current_state, , i]
+      }
+      current_state <- sample(x = model_states,
+                              size = 1,
+                              prob = current_wt)
+      state_mem[i, current_state] <- 1
+    } else {
+      if (i == 1) {
+        state_mem[i, ] <- init %*% Q[, , i]
+      } else {
+        state_mem[i, ] <- state_mem[i - 1, ] %*% Q[, , 1]
+      }
+    }
+  }
+  
+  
+  return(state_mem)
 }
 
 # Estimate Costs ###############################################################
@@ -104,32 +168,36 @@ track_state <- function(Q){
 est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
   # Estimate Costs by Health (Markov) State
   #
-  # Args: 
-  #   j:  Character. The arm of the decision model. Accepted values include 
-  #     `"Mono"` or `"Comb"`. 
-  #   trace: Numeric. A matrix representing the cohort trace generated by the 
-  #     function `track_cohort`. 
-  #   RxPrice: Numeric. The annual treatment costs for AZT and LAM. Expects the 
-  #     `RxPrices` element from the parameter list. 
-  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
+  # Args:
+  #   j:  Character. The arm of the decision model. Accepted values include
+  #     `"Mono"` or `"Comb"`.
+  #   trace: Numeric. A matrix representing the cohort trace generated by the
+  #     function `track_cohort`.
+  #   RxPrice: Numeric. The annual treatment costs for AZT and LAM. Expects the
+  #     `RxPrices` element from the parameter list.
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient
   #     is assumed to receive combination therapy. Default = 2 (Base Case).
   #   AnnualCosts: Numeric. A matrix of the annual direct medical and community
-  #     care costs for each markov state. Expects the `AnnualCost` element from 
-  #     the parameter list. 
+  #     care costs for each markov state. Expects the `AnnualCost` element from
+  #     the parameter list.
   #
-  # Returns: 
-  #   An array with 2 dimensions (i.e. a matrix). Rows represent the cycle 
-  #   (year) of the cohort simulation. Columns represent the markov state. 
-  #   Values represent the total costs for the corresponding value and health 
-  #   state. 
+  # Returns:
+  #   An array with 2 dimensions (i.e. a matrix). Rows represent the cycle
+  #   (year) of the cohort simulation. Columns represent the markov state.
+  #   Values represent the total costs for the corresponding value and health
+  #   state.
   
   j <- match.arg(arg = j, choices = c("Mono", "Comb"))
   # Identify Alive States
   alive_states <- which(x = colnames(trace) != "D")
   
   # Calculate Treatment Acquisition Cost ------------------------------------
-  tx_acq <- matrix(data = 0, nrow = nrow(trace), ncol = ncol(trace), 
-                   dimnames = dimnames(trace))
+  tx_acq <- matrix(
+    data = 0,
+    nrow = nrow(trace),
+    ncol = ncol(trace),
+    dimnames = dimnames(trace)
+  )
   if (j == "Comb") {
     # Identify Cycles Patient is on Combination Therapy
     comb_id <- seq_len(comb_yrs)
@@ -144,10 +212,13 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
   AnnualCosts <- colSums(x = AnnualCosts, na.rm = FALSE, dims = 1L)
   AnnualCosts <- c(AnnualCosts, D = 0)
   
-  tx_monit <- matrix(data = AnnualCosts, 
-                     nrow = nrow(trace), ncol = ncol(trace), 
-                     byrow = TRUE,
-                     dimnames = dimnames(trace))
+  tx_monit <- matrix(
+    data = AnnualCosts,
+    nrow = nrow(trace),
+    ncol = ncol(trace),
+    byrow = TRUE,
+    dimnames = dimnames(trace)
+  )
   
   # Combine Acquisition and Monitoring Costs
   total_costs <- tx_acq + tx_monit
@@ -158,32 +229,32 @@ est_costs <- function(j, trace, RxPrice, comb_yrs = 2, AnnualCosts) {
 }
 
 # Run Model ####################################################################
-run_arm <- function(j, 
-                     ParamList, 
-                     comb_yrs = 2,
-                     n_cycles = 20, 
-                     oDR = 0, 
-                     cDR = 0.06){
+run_arm <- function(j,
+                    ParamList,
+                    comb_yrs = 2,
+                    n_cycles = 20,
+                    oDR = 0,
+                    cDR = 0.06) {
   # Estimate Costs and Benefits from a Single Alternative
   #
   # Args:
-  #   j: Character. The arm of the decision model. Accepted values include 
-  #     `"Mono"` or `"Comb"`. 
-  #   ParamList: List. The list of sampled parameter values. Expects the 
-  #      output from the function draw_params(). 
-  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient 
+  #   j: Character. The arm of the decision model. Accepted values include
+  #     `"Mono"` or `"Comb"`.
+  #   ParamList: List. The list of sampled parameter values. Expects the
+  #      output from the function draw_params().
+  #   comb_yrs: Numeric (Integer). Refers to the number of years the patient
   #     is assumed to receive combination therapy. Default = 2 (Base Case).
-  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years) 
+  #   n_cycles: Numeric (integer). Refers to the total number of cycles (years)
   #     in the cohort simulation. Default = 20 (Base Case).
-  #   oDR: Numeric (Default = 0). The discount rate to apply to outcomes. 
+  #   oDR: Numeric (Default = 0). The discount rate to apply to outcomes.
   #   cDR: Numeric (Default = 0.06). The annual discount rate to apply to costs.
   #
   # Details:
-  #   The model can be broken down into four distinct tasks. 
+  #   The model can be broken down into four distinct tasks.
   #   1) Define the transition matrix with treatment specific probabilities.
-  #   2) Track the cohort through the Model structure over the specified 
-  #      time horizon. 
-  #   3) Estimate benefits. 
+  #   2) Track the cohort through the Model structure over the specified
+  #      time horizon.
+  #   3) Estimate benefits.
   #   4) Estimate Costs
   #
   # Returns
@@ -191,28 +262,32 @@ run_arm <- function(j,
   
   
   ## 1) Define Transition Matrix -----------------------------------------------
-  Q <- define_tmat(j = j, 
-                   Q_mono = ParamList$StateCount, 
-                   RR = ParamList$RR, 
-                   comb_yrs = comb_yrs, 
-                   n_cycles = n_cycles)
+  Q <- define_tmat(
+    j = j,
+    Q_mono = ParamList$StateCount,
+    RR = ParamList$RR,
+    comb_yrs = comb_yrs,
+    n_cycles = n_cycles
+  )
   ## 2) Track Cohort -----------------------------------------------------------
   cohort <- track_state(Q = Q)
   ## 3) Calculate LYs ----------------------------------------------------------
   LYs <- rowSums(x = cohort[, c("A", "B", "C")], na.rm = FALSE, dims = 1L)
   
   ## 4) Estimate Costs ---------------------------------------------------------
-  Costs <- est_costs(j = j, 
-                    trace = cohort, 
-                    RxPrice = ParamList$RxPrices, 
-                    comb_yrs = comb_yrs, 
-                    AnnualCosts = ParamList$AnnualCost)
+  Costs <- est_costs(
+    j = j,
+    trace = cohort,
+    RxPrice = ParamList$RxPrices,
+    comb_yrs = comb_yrs,
+    AnnualCosts = ParamList$AnnualCost
+  )
   # Sum Costs for each cycle
   Costs <- rowSums(x = Costs, na.rm = FALSE, dims = 1L)
   
   ## 5) Discount LYs and Costs -------------------------------------------------
-  LYs <- LYs/((1+oDR)^(1:n_cycles))
-  Costs <- Costs/((1+cDR)^(1:n_cycles))
+  LYs <- LYs / ((1 + oDR)^(1:n_cycles))
+  Costs <- Costs / ((1 + cDR)^(1:n_cycles))
   
   ## 6) Combine Costs and Effects ----------------------------------------------
   Result <- cbind(Costs, LYs)
@@ -222,24 +297,24 @@ run_arm <- function(j,
   return(Result)
 }
 
-simulate_model <- function(arms = c("Mono", "Comb"), 
-                           params, 
-                           prob = FALSE, 
+simulate_model <- function(arms = c("Mono", "Comb"),
+                           params,
+                           prob = FALSE,
                            n = 1000,
-                           comb_yrs = 2, 
-                           n_cycles = 20, 
-                           oDR = 0, 
+                           comb_yrs = 2,
+                           n_cycles = 20,
+                           oDR = 0,
                            cDR = 0.06) {
-  # Simulates the Costs/Benefits for each arm of the model. 
+  # Simulates the Costs/Benefits for each arm of the model.
   #
   # Args:
-  #   arms: Character. A vector of the unique names of each arm of the model. 
-  #   params: List. The parameter list to be sampled in the simulation. 
-  #   prob: Logical. Controls the approach used to sample the model parameters. 
-  #     Can be deterministic (`FALSE`) or random (`TRUE`). 
+  #   arms: Character. A vector of the unique names of each arm of the model.
+  #   params: List. The parameter list to be sampled in the simulation.
+  #   prob: Logical. Controls the approach used to sample the model parameters.
+  #     Can be deterministic (`FALSE`) or random (`TRUE`).
   #   n: Numeric. The number of random draws to perform. Only needed when
-  #     `prob` is set to `TRUE`. 
-  #   comb_yrs, n_cycles, oDR, cDR: See documentation for `run_arm`. 
+  #     `prob` is set to `TRUE`.
+  #   comb_yrs, n_cycles, oDR, cDR: See documentation for `run_arm`.
   #
   # Set names to model arms
   names(arms) <- arms
@@ -248,28 +323,26 @@ simulate_model <- function(arms = c("Mono", "Comb"),
     n <- 1
   }
   
-  sim_data <- 
-    replicate(
-      n = n, 
-      expr = {
-        param_i <- draw_params(ParamList = params, prob = prob)
-        
-        sapply(
-          X = arms, 
-          FUN = run_arm,
-          ParamList = param_i,
-          comb_yrs = comb_yrs, 
-          n_cycles = n_cycles, 
-          oDR = oDR, 
-          cDR = cDR, 
-          simplify = "array"
-        )
-      }, 
-      simplify = "array"
-    )
+  sim_data <-
+    replicate(n = n,
+              expr = {
+                param_i <- draw_params(ParamList = params, prob = prob)
+                
+                sapply(
+                  X = arms,
+                  FUN = run_arm,
+                  ParamList = param_i,
+                  comb_yrs = comb_yrs,
+                  n_cycles = n_cycles,
+                  oDR = oDR,
+                  cDR = cDR,
+                  simplify = "array"
+                )
+              },
+              simplify = "array")
   names(dimnames(sim_data)) <- c("Result", "j", "i")
   if (isFALSE(prob)) {
-    sim_data <- t(sim_data[,,1])
+    sim_data <- t(sim_data[, , 1])
   } else {
     sim_data <- aperm(a = sim_data, perm = c("i", "Result", "j"))
   }
